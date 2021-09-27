@@ -1,0 +1,2 @@
+area	subid	maindown	longitude	latitude	lakeregion	ilregion	olregion	elev_mean	slope_mean	lake_depth	rivlen	SLC_1	SLC_2
+1.00E+07	1	-9999	-72.8867753	46.18381344	2	2	0	-10.1071	0.0157752	1.25	5.00E+03	0.5	0.5

@@ -1,0 +1,306 @@
+!!	=======================================================================================================																																					
+!!	Par.txt	for	GRIP-GL																																			
+!!	HYPE	simulation	for	the	Great	Lakes	basin	-	GRIP-GL																													
+!!																																						
+!!	=======================================================================================================																																					
+!!																																						
+!!	------------------------																																					
+!!																																						
+!!																																						
+!!																																						
+!!	Earlier	versions:																																				
+!!	V3.0.26	20160420	David	Calibration	of	glacier	melt	parameters	-	using	the	glacier	initial	volume	correction	through	glacierdata	(v	20160420)	and	WGMS	data	from	different	RGI	regions												
+!!																																						
+!!	V3.0.25	20160420	David	Precipitation	elevation	correction	coefficents	as	mean	between	v3.0.24	and	v3.0.17	-	to	be	re-calibrated	properly																				
+!!																																						
+!!	V3.0.24	20160418	David	Update	of	v3.0.23	after	DREAM	calibrations	finished	+	1	new	glacier	parameter	(glacinimb)																						
+!!																																						
+!!	V3.0.23	20160414	David	(Preliminary)	Re-calibration	of	land/soil/ilake/olake	"parameters,"	with	weighted	results	between	common	parameters	(kc	lake	and	damp)																				
+!!																																						
+!!	V3.0.22	20160414	David	Ilake	region	parameters	plus	re-calibration	of	kc	lake	and	damp																									
+!!																																						
+!!	V3.0.21	20160413	David	A-priori	values	for	olake	regional	parameters	based	on	rough	estimate	from	Kristinas	manual	calibrations	of	the	largest	lakes	and	dams	(rate	=	100	and	exp	=	2)								
+!!																																						
+!!	V3.0.20	20160413	David	Re-calibration	of	soil	and	landuse	parameters	with	new	criteria	(MRS+RRE+0.1*MCC)	including	pcelevadd	and	pcelevstd	(with	pcelevmax=1)	-	also	note	reset	ilake	parameters	to	the	values	found	or	used	in	this	calibration				
+!!																																						
+!!	V3.0.19	20160405	David	Ilake	region	3	parameter	calibrated	and	applied	on	all	ilake	and	olake	regions.																						
+!!																																						
+!!	V3.0.17reg	20160324	David	Ilake	region	3	parameter	reset	to	version	"17,"	but	keeping	the	new	regional	structure	(and	previously	calibrated	rounded	to	4	digits)														
+!!																																						
+!!	V3.0.18c	20160324	David	More	regional	and	general	lake	parameters:	"ilricatch,"	gicatch	(used	if	icatch	is	not	set	in	geodata)																			
+!!																																						
+!!	V3.0.18b	20160323	David	Added	general	Olake	lakedepth	parameter	gldepo	(used	if	none	of	olrldep	or	lake_depth	from	geodata/lakedata/damdata	is	>	0)																	
+!!																																						
+!!	V3.0.18a	20160323	David	Introducing	regional	parameters	for	Ilake	(4	reg)	and	Olake	(3	reg)	-	with	preliminary	calibration	of	ilakeregion	3	(based	on	v3.0.17prel).														
+!!																																						
+!!	V3.0.17	20160323	David	(finished)	Calibration	of	precipitation	elevation	correction	using	selection	of	olake-free	upstream	stations	on	v3.0.16b.																					
+!!																																						
+!!	V3.0.17prel	20160322	David	(preliminary)	Calibration	of	precipitation	elevation	correction	using	selection	of	olake-free	upstream	stations	on	v3.0.16b.																					
+!!																																						
+!!	V3.0.16b	20160321	David	Calibration	with	selection	of	olake-free	upstream	stations	(KGE	v	3.0.14>0)	-	MEDIAN	value	of	parameters	from	11	flow-signature	cluster	"calibrations,"	weighted	by	SLC	area	overlapp	with	model	"domain,"	and	KGE	"value,"	see	r-scripts	for	details.
+!!																																						
+!!	v3.0.14	20160205	David	Albedo	(alb)	and	Crop	coefficients	(kc)	calibrated	with	FluxNet	data	(Evaporation	and	Net	radiation)																					
+!!																																						
+!!	v3.0.13	20160203	David	Albedo	(alb)	parameter	for	PET	calculation	updated	with	values	from	literature.																								
+!!																																						
+!!	V3.0.12	20160203	David	Snow	melt	parameters	calibrated	with	FSUS	data	distributed	on	the	landuse	classes	"forest->wetland,forest,"	"open->lake,river,glacier,urban,crops,open,bare)"	.																				
+!!																																						
+!!	v3.0.11	20160202	David	Baseline2	parameters	for	v3.1	calibration	Jan-Feb	2016																												
+!!	+	Glacier	area-volume	scaling	parameters	fitted	for	Glaciers	and	Ice	"caps,"	to	match	the	ice	volumes	published	by	Huss&Farinotti	-2012																		
+!!	+	Individual	basin-correction	of	the	glacier	area	scaling	coefficient	in	GlacierData	(logvolcor)	-	NB.	the	scaling	exponents	are	fixed	according	to	Bahr	et	al	-2015													
+!!	+	snow	cover	impact	on	snow	melt	switched	on	(fsceff=1).																												
+!!	+	Frozen	soil	infiltration	according	to	Mattew	Macdonalds	suggestion	(bfroznsoil	enabled	with	default	values	from	Matt)																						
+!!	+	Baseline2	is	dependent	on	these	versions	of	LakeData.txt	and	GlacierData.txt:																											
+!!	-	LakeData_v3.0.10_NoOlakeRatingPars_20160202.txt																																				
+!!	-	GlacierData_v3.0.11_LogVolCorGlacTypes_20160202.txt																																				
+!!																																						
+!!	v3.0.10	20160202	David	Baseline1	parameters	for	v3.1	calibration	Jan-Feb	2016																												
+!!	+	Derived	from	SHYPE2012	and	EHYPE3	(versions	available	2015-03-25)	-	with	some	exceptions	as	noted	below																						
+!!	+	Parameters	for	optional	model	structures	not	used	in	SHYPE	and	EHYPE	were	initially	parameterised	with	values	from	previous	studies	or	0																
+!!	+	see	R-script	jfr_hypes_par.R	and	Excel	file	jfr_med_ehype3_sype2014.xls	for	details	how	landuse	and	soil	classes	were	mapped	from	S/E-HYPE	to	Arctic-HYPE																	
+!!	+	Baseline1	is	also	dependent	on	certain	version	of	LakeData.txt	and	not	using	GlacierData.txt	and	damdata:																						
+!!	-	LakeData_v3.0.10_NoOlakeRatingPars_20160202.txt																																				
+!!	-	GlacierData	and	Damdata	should	not	be	used																														
+!!																																						
+!!	For	previous	versions	(v1.1-3.0.3)	see	older	versions	of	Par.txt																													
+!!	=======================================================================================================																																					
+!!	METEOROLOGICAL	INPUT	-	general	parameters	related	to	temperature	and	precipitation	corrections																											
+!!	-----																																					
+!!	General	parameters	-	baseline	parameters	from	EHYPE3:	dry	adiabatic	T	decrease	(0.6deg/100m)	and	NO	elevation	corrections	on	P																				
+tcobselev	        0.3871	!!	temperature	lapse	rate	for	correction	from	Tobs	elevation	to	basin	mean	elevation																								
+tcalt	0	!!	temperature	lapse	rate	for	correction	from	basin	mean	elevation	to	class	elevation																								
+tcelevadd	0	!!	temperature	lapse	rate	for	correction	from	sea-level	to	basin	mean	elevation																									
+pcaddg	     0.4835	!!	general	fractional	bias	correction	of	precipitation																														
+pcelevadd	        0.0630	!!	fractional	increase	in	precipitation	per	hundred	m	elevation	above	threshold	pcelevth																									
+pcelevstd	0	!!	fractional	increase	in	precipitation	by	elevation	standard	deviation																												
+pcelevth	500	!!	minimum	elevation	for	elevation	and	elev_std	correction	of	precipitation																											
+pcelevmax	0.7	!!	maximum	allowed	elevation	correction	(one	corresponds	to	hundred	percent	increase)																										
+pcusnow	0	!!	prec	undercatch	correction	for	snow																															
+pcurain	0	!!	prec	undercatch	correction	for	rain																																
+!!	=======================================================================================================																																					
+!!	SNOW	-	"MELT,"	"ACCUMULATION,"	AND	DISTRIBUTION;	sublimation	is	sorted	under	Evapotranspiration																											
+!!	-----																																					
+!!	General	snow	accumulation	and	melt	related	parameters	(baseline	values	from	"SHYPE,"	unless	noted	otherwise)																								
+ttpd	   0.2976	!!	snowfall-rainfall	threshold	temperature	(please	"note,"	it	is	additative	to	ttmp)	[midpoint	in	mixed	precip	temp	interval]																				
+ttpi	  1.7083	!!	width	of	the	temperature	interval	with	mixed	precipitation																												
+sdnsnew	0.13	!!	density	of	fresh	snow	(kg/dm3)																															
+snowdensdt	0.0016	!!	snow	densification	parameter																																	
+fsceff	1	!!	efficiency	of	fractional	snow	cover	to	reduce	melt	and	evap																										
+cmrefr	0.05	!!	snow	refreeze	capacity	(fraction	of	degreeday	melt	factor)	-	baseline	value	from	HBV	(pers	comm	Barbro	"Johansson,"	but	also	in	publications)															
+!!	-----																																					
+!!	Landuse	dependent	snow	melt	parameters	-	baseline	from	EHYPE3.0	unless	otherwise	noted																										
+!!LUSE:	LU1	LU2	LU3	LU4	LU5	LU6	LU7	LU8	LU9	LU10	LU11	LU12	LU13	LU14																								
+ttmp	  -9.7740	  -2.4419	   2.5478	  -3.8724	   2.9143	  -7.2759	  -6.1012	  -6.5266	  -1.8872	  -1.2143	  -9.9603	  -5.4364	  -6.8267	  -8.0217	!!	Snowmelt	threshold	temperature	"(deg),"	baseline	zero	for	all	landuses														
+cmlt	   9.7021	   6.0035	   1.1786	   9.3525	   1.7176	   5.8523	   4.1957	   8.6383	   8.0090	   5.4865	   1.1010	   5.5150	   1.9558	   6.7430	!!	Snowmelt	degree	day	coef	(mm/deg/timestep)																		
+cmrad	0.249065876	0.249065876	1.5	0.176534861	0.685361445	0.174564317	0.174564317	0.174564317	0.174564317	0.685361445	0.501842737	0.011482887	0.4626601	0.3	!!	Snowmelt	radiation	coef	(mm/MJ/timestep)																			
+snalbmin	0.524781764	0.524781764	0.45	0.250044137	0.243925437	0.251664609	0.251664609	0.251664609	0.251664609	0.243925437	0.409460604	0.22856541	0.45	0.45	!!	Snow	"albedo,"	minimum																				
+snalbmax	0.85	0.85	0.85	0.85	0.85	0.85	0.85	0.85	0.85	0.85	0.85	0.85	0.85	0.85	!!	Snow	"albedo,"	maximum																				
+snalbkexp	0.1	0.1	0.1	0.1	0.1	0.1	0.1	0.1	0.1	0.1	0.1	0.1	0.1	0.1	!!	Snow	"albedo,"	exponential	ageing	coefficient																		
+!!	-----																																					
+!!	General	and	Landuse	dependent	fractional	snow	cover	parameters	-	baseline	from	Rossby	RCA	model	(Samuelsson	et	al	2006;Lindström	et	al)																		
+!!LUSE:	LU1	LU2	LU3	LU4	LU5	LU6	LU7	LU8	LU9	LU10	LU11	LU12	LU13	LU14																								
+fscdistmax	0.8	0.8	0.8	0.8	0.8	0.8	0.8	0.8	0.8	0.8	0.8	0.8	0.8	0.8	!!	Maximum	snow	distribution	coefficient																			
+fscdist0	0.571998656	0.571998656	0.6	0.672227979	0.718591213	0.672161579	0.672161579	0.672161579	0.672161579	0.718591213	0.302164137	0.663832068	0.609437	0.6	!!	Minimum	snow	distribution	coefficient																			
+fscdist1	0.001	0.001	0.001	0.001	0.001	0.001	0.001	0.001	0.001	0.001	0.001	0.001	0.001	0.001	!!	Linear	increase	in	snow	distribution	coefficient	as	function	of	elev_std													
+fscmax	1	!!	Maximum	fractional	snow	cover																																
+fscmin	0.01	!!	Minimum	fractional	snow	cover																																
+fsclim	0.001	!!	Threshold	(below	fsxmax)	for	switching	FSC-function	from	Accumulation	phase	to	Melting	phase																								
+fsck1	0.2	!!	Snowmass	threshold	(as	fraction	of	current	year	snowmax)	to	start	decreasing	the	internal	snowmax	variable	towards	the	end	of	the	melt	season														
+fsckexp	0.000001	!!	Coefficient	in	exponential	decrease	of	the	internal	Snowmax	variable																											
+!!	=======================================================================================================																																					
+!!	GLACIER	-	parameters	for	volume-area	"scaling,"	accumulation	and	melt	(sublimation	sorted	under	Evapotranspiration)																									
+!!	-----																																					
+!!	Glacier	volume-area	scaling	(recalibrated	using	the	RGIv4	data	and	regional	estimated	total	ice	volumes	from	Huss&Farinotti(2012)	"/David,"	20160202)																				
+glacvexp	1.395	!!	exponent	for	"glaciers,"	should	be	considered	a	global	constant																											
+glacvcoef	0.17157	!!	linear	coef	for	"glaciers,"	calibrated	offline	as	described	above																											
+glacvexp1	1.25	!!	exponent	for	ice	"caps,"	should	be	considered	a	global	constant																										
+glacvcoef1	2.88364	!!	linear	coef	for	ice	"caps,"	calibrated	offline	as	described	above																										
+glac2arlim	25000000	!!	area	threshold	which	is	used	only	if	glacier	type	is	given	in	GlacierData.txt	(as	in	this	case)																			
+glacannmb	0	!!	annual	mass	balance	(mm/year)	used	for	modifying	initial	glacier	"volume,"	depending	on	the	age	of	SLC	information	(glacdate	in	glacierdata)	and	start	of	simulation												
+!!	-----																																					
+!!	Glacier	melt	"parameters,"	calibrated	from	WGMS	data	in	v3.0.26																													
+!!	----																																					
+glacttmp	0																																					
+glaccmlt	1.58595482																																					
+glaccmrad	0.19090136																																					
+glaccmrefr	0.06259448																																					
+glacalb	0.35																																					
+!!	=======================================================================================================																																					
+!!	EVAPOTRANSPIRATION	PARAMETERS																																				
+!!	-----																																					
+!!	General	evapotranspiration	parameters																																			
+lp	 0.5460	!!	Threshold	for	water	content	reduction	of	transpiration	(fraction	of	field	capacity)	-	baseline	value	from	SHYPE	because	its	more	realistic	with	a	value	slightly	below	field	capacity									
+epotdist	       5.8197	!!	Coefficient	in	exponential	function	for	potential	evapotranspiration's	depth	dependency	-	baseline	from	EHYPE	and/or	SHYPE	(very	similar)																			
+krs	0.16	!!	Hargreaves	Turbidity	parameter	-	baseline	value	from	FAO	recommendation	for	inland	conditions																								
+alfapt	1.26	!!	Priestly-Taylor	"coefficient,"	baseline	value	from	FAO	recommendation	(theoretical	value	from	P-T)																									
+fepotglac	0	!!	Fraction	of	potential	evapotranspiration	used	for	Glacier	subimation																												
+jhtadd	4.95																																					
+jhtscale	94.2																																					
+!!	-----																																					
+!!	Landuse	dependent	evapotranspiration	parameters																																		
+!!	baseline:	derived	from	EHYPE	and	SHYPE	(see	Excel	file	kc-parameters-derived-from-EHYPE-and-SHYPE.xls)																												
+!!	v3.0.14:	kc	and	alb	calibrated	with	FluxNet																															
+!!	v3.0.16-19:	calibration	with	olake	free	upstream	stations	(values	with	4	digits)																											
+!!	V3.0.20:	re-calibration	of	v16																																		
+!!																																						
+!!LUSE:	LU1	LU2	LU3	LU4	LU5	LU6	LU7	LU8	LU9	LU10	LU11	LU12	LU13	LU14																								
+kc2	1.165694952	1.165694952	1.073547006	0.911120594	1.461986303	0.804961801	0.804961801	0.804961801	0.804961801	1.461986303	1.280908227	1.421865106	1.1021267	1.36																								
+kc3	1.017511845	1.017511845	1.201224208	1.334493399	1.265059352	1.020708799	1.020708799	1.020708799	1.020708799	1.265059352	1.342448354	1.024959087	0.9026712	0.58																								
+kc4	  1.2346	  0.5419	  0.7662	  0.5133	  0.8196	  1.2967	  0.7288	  0.5062	  1.1427	  0.7456	  0.9864	  0.4325	  0.4256	  0.5854	!!	Crop	"coefficient,"	multiplicative	scaling	of	potential	evapotranspiration	(-)															
+alb	0.476534277	0.476534277	0.7	0.45542863	0.669192433	0.799822092	0.799822092	0.799822092	0.799822092	0.669192433	0.400103867	0.479658425	0.5126792	0.4	!!	Albedo	used	to	derive	net	radiation	for	PT-PET															
+ttrig	0	0	0	0	0	0	0	0	0	0	0	0	0	0	!!	Soil	temperature	threshold	to	allow	transpiration	-	disabled	if	treda	is	set	to	zero									
+treda	0.84	0.84	0.84	0.84	0.95	0.95	0.95	0.95	0.95	0.7	0.9	0.8	0.8	0.8	!!	Coefficient	in	soil	temperature	response	function	for	root	water	"uptake,"	default	value	from	Ågren	et	"al,"	set	to	zero	to	disable	the	function
+tredb	0.4	0.4	0.4	0.4	0.4	0.4	0.4	0.4	0.4	0.4	0.4	0.4	0.4	0.4	!!	Coefficient	in	soil	temperature	response	fuction	for	root	water	"uptake,"	default	value	from	Ågren	et	al							
+!!																																						
+cevp	0.22	0.22	1.6	1.9	0.17	0.17	0.17	0.17	0.17	0.1	0.21	0.07	0.05	0.17																								
+!!cevp	0.22	0.22	1.6	1.9	0.17	0.17	0.17	0.17	0.17	0.1	0.21	0.07	0.05	0.17 !!	evapotranspiration parameter (mm °C-1 ts-1)																							
+!!																																						
+fepotsnow	0.912879467	0.912879467	0.18	0.533387661	0.460848987	0.12002416	0.12002416	0.12002416	0.12002416	0.460848987	0.206956849	0.197802201	0.3149643	0.44	!!	Fraction	of	potential	evapotranspiration	used	for	snow	sublimation															
+soilcorr	       8.9020	       8.6994	       6.3106	       2.7196	       1.6215	       7.9561	       0.5900	       7.1774	       6.3061	       5.9251	       5.5647	       4.1868	       9.8514	       2.6670																								
+!!soilcorr	1.831683278	1.831683278	0.619128883	2.139550209	3.502667189	0.723332584	0.723332584	0.723332584	0.723332584	3.502667189	0.820244551	0.666751206	1.4421684	1 !! factor used to adjust the thicknesses of soil layer 2 and 3 as given in GeoClass. Must be larger than zero if used.																								
+!!																																						
+!! Frozen soil infiltration parameters from Matt Macdonald, personal comm. Dec 2015 (I suggest values of 2.10 for coarse, medium, organic & shallow, and 1.14 for fine, shallow & urban.)"																																						
+!! SOIL:	S1	S2	S3	S4	S5	S6	S7	S8	S9	S10	S11	S12																										
+bfroznsoil	2.1	2.1	2.1	2.1	2.1	2.1	2.1	2.1	2.1	1.14	1.14	1.14																										
+logsatmp	1.15	1.15	1.15	1.88	1.59	1.88	1.88	1.88	1.88	1.51	1.51	1.51																										
+bcosby	4.74	4.74	4.74	5.33	7.22	5.33	5.33	5.33	5.33	10.39	10.39	10.39																										
+!! SOIL:	Water	Coarse	Medium	Fine	Glacier	Organic	Urban	Shallow																														
+!! bfroznsoil	2.1	2.1	2.1	1.14	2.1	2.1	1.14	2.1																														
+!! logsatmp	1.59	1.15	1.88	1.51	1.59	1.15	1.59	1.67																														
+!! bcosby		7.22	4.74	5.33	10.39	7.22	4.74	7.22	11.55																													
+!!	=======================================================================================================																																					
+!!	SOIL/LAND	HYDRAULIC	RESPONSE	PARAMETERS	-	recession	"coef.,"	water	"retention,"	"infiltration,"	"macropore,"	surface	runoff;	etc.																								
+!!	-----																																					
+!!	Soil-class	parameters	from	SHYPE2012	(version	at	2015-03-25)																															
+!!	S1	S2	S3	S4	S5	S6	S7	S8	S9	S10	S11	S12																										
+rrcs1	    0.0659	    0.3201	    0.2982	    0.2663	    0.4510	    0.1637	    0.1478	    0.5517	    0.3797	    0.3455	    0.4290	    0.4840	!!	recession	coefficients	uppermost	layer	(fraction	of	water	content	above	field	capacity/timestep)														
+rrcs2	    0.1345	    0.1612	    0.0858	    0.1422	    0.0112	    0.1914	    0.1947	    0.0597	    0.1996	    0.0878	    0.1759	    0.0354	!!	recession	coefficients	bottom	layer	(fraction	of	water	content	above	field	capacity/timestep)														
+rrcs3	    0.0992												!!	Recession	coefficient	(upper	layer)	slope	dependance	(fraction/deg)																		
+trrcs	0.15	0.15	0.15	0.15	0.15	0.15	0.3	0.3	0.3	0.3	0.3	0.3	!!	Runoff	coefficient	for	tile	runoff	(fraction	of	water	storage	above	field	capacity	in	the	layer	above	the	drainage	pipe/timestep)						
+mperc1	   101.6582	    63.9842	   119.5863	    93.9854	   111.8318	    20.1177	    48.2643	    22.3092	    14.9284	    48.7385	    39.8997	    49.7097	!!	Maximum	percolation	from	uppermost	soil	layer	(mm/timestep)																		
+mperc2	     6.1707	    97.6492	    12.5429	    20.0276	    79.4810	    12.0754	   111.4521	    13.3003	    94.7374	    32.5586	    41.5294	    59.0728	!!	Maximum	percolation	deep	soil	layer	can	accept	(mm/timestep)																	
+macrate	      0.0243	      0.4421	      0.1372	      0.1404	      0.2255	      0.0192	      0.1470	      0.4998	      0.1766	      0.2569	      0.3355	      0.3646	!!	macropore	flow	fraction	(-)																					
+mactrinf	      64.9897	      54.3670	      48.0778	      11.7374	      70.1474	      68.1768	       5.0708	      90.7360	      83.0835	       2.6754	       5.5069	      52.5832	!!	threshold	for	macropore	(and	surface	runoff)	flow	(mm/timestep)																	
+mactrsm	      0.2793	      0.8680	      0.2703	      0.5410	      0.0507	      0.4313	      0.5484	      0.5024	      0.6762	      0.3264	      0.2514	      0.3677	!!	"Macropore,"	tile	runoff	coefficients																					
+sfrost	1	1	1	1	1	1	1	1	1	1	1	1	!!	frost	depth	parameter	(cm/degree	Celsius)	soil-type	dependent																		
+srrate	     0.3055	     0.4975	     0.4489	     0.1874	     0.4499	     0.4956	     0.4887	     0.4954	     0.1495	     0.4424	     0.4994	     0.4848	!!	soil	moisture	threshold	for	macropore	(and	surface	runoff)	"flow,"	as	fraction	of	water	content	at	field	capacity	(-)							
+wcwp1	    0.4092	    0.2732	    0.2140	    0.1479	    0.4233	    0.4941	    0.2313	    0.4746	    0.2522	    0.2740	    0.1574	    0.2047	!!	Soil	water	content	at	wilting	point	(volume	fraction)																	
+wcwp2	    0.2098	    0.2293	    0.2560	    0.0984	    0.4303	    0.1308	    0.4845	    0.4210	    0.1180	    0.2036	    0.1654	    0.4678	!!	Soil	water	content	at	wilting	point	(volume	fraction)																	
+wcwp3	    0.4029	    0.3257	    0.0580	    0.3639	    0.0433	    0.3632	    0.1343	    0.4286	    0.1984	    0.0472	    0.3256	    0.4724	!!	Soil	water	content	at	wilting	point	(volume	fraction)																	
+wcfc1	    0.4710	    0.4344	    0.1758	    0.3526	    0.4812	    0.4894	    0.1807	    0.4887	    0.1943	    0.0744	    0.4680	    0.4888	!!	Field	"capacity,"	layerOne	(additional	to	wilting	point)	(volume	fraction)																
+wcfc2	    0.4283	    0.1392	    0.1966	    0.3818	    0.1163	    0.2385	    0.0932	    0.4241	    0.1093	    0.4450	    0.2142	    0.0512	!!	Field	"capacity,"	layerTwo	(additional	to	wilting	point)	(volume	fraction)																
+wcfc3	    0.1115	    0.2307	    0.2075	    0.4055	    0.0770	    0.3430	    0.4983	    0.0538	    0.4436	    0.4006	    0.4903	    0.4371	!!	Field	"capacity,"	layerThree	(additional	to	wilting	point)	(volume	fraction)																
+wcep1	    0.0105	    0.8729	    0.4168	    0.8743	    0.5142	    0.0117	    0.4707	    0.4124	    0.0286	    0.1078	    0.1659	    0.1759	!!	Effective	"porosity,"	layerOne	(additional	to	wp	and	fc)	(volume	fraction)															
+wcep2	    0.0379	    0.1177	    0.2773	    0.0329	    0.8547	    0.0870	    0.8190	    0.0674	    0.7759	    0.8474	    0.4953	    0.6765	!!	Effective	"porosity,"	layerTwo	(additional	to	wp	and	fc)	(volume	fraction)															
+wcep3	    0.5242	    0.3064	    0.8004	    0.5832	    0.4740	    0.8299	    0.8194	    0.2522	    0.7748	    0.3296	    0.6775	    0.4392	!!	Effective	"porosity,"	layerThree	(additional	to	wp	and	fc)	(volume	fraction)															
+bfroznsoil	2.1	2.1	2.1	2.1	2.1	2.1	2.1	2.1	2.1	2.1	2.1	2.1																										
+!!	-----																																					
+!!	Landuse-class	parameters	from	SHYPE2012(2015-03-25)	-	Surface	runoff																															
+!!LUSE:	LU1	LU2	LU3	LU4	LU5	LU6	LU7	LU8	LU9	LU10	LU11	LU12	LU13	LU14																								
+srrcs	    0.1259	    0.0701	    0.1870	    0.1977	    0.0951	    0.1208	    0.1594	    0.0694	    0.1136	    0.0575	    0.1962	    0.1213	    0.1010	    0.1256	!!	Runoff	coefficient	for	surface	runoff	from	saturated	overland	flow	of	uppermost	soil	layer	(fraction/timestep)									
+!!	-----																																					
+!!	Regional	groundwater	outflow	(0	in	both	EHYPE	and	SHYPE)																													
+rcgrw	1	!!	recession	coefficient	for	regional	groundwater	outflow	from	soil	layers																											
+!!	=======================================================================================================																																					
+!!	SOIL	TEMPERATURE	AND	SOIL	FROST	DEPTH	-	baseline	from	SHYPE2012	(2015-03-25)																											
+!!	-----																																					
+!!	General																																					
+deepmem	1000	!!	temperature	memory	of	deep	soil	(days)																														
+iniT2 4 																																						
+!! iniT2	4 !!	starting	value	in	"soil,"	concentration	T2	-	temperature	(also	for	lake	and	river	water	T2	concentration)																					
+!!-----																																						
+!!LUSE:	LU1	LU2	LU3	LU4	LU5	LU6	LU7	LU8	LU9	LU10	LU11	LU12	LU13	LU14																								
+surfmem	17.8	17.8	17.8	17.8	5.15	5.15	5.15	5.15	5.15	5.15	5.15	5.15	5.15	17.8	!!	upper	soil	layer	soil	temperature	memory	(days)																
+depthrel	1.1152	1.1152	1.1152	1.1152	2.47	2.47	2.47	2.47	2.47	2.47	2.47	2.47	2.47	1.1152	!!	depth	relation	for	soil	temperature	memory	(/m)																
+frost	2	2	2	2	2	2	2	2	2	2	2	2	2	2	!!	frost	depth	parameter	(cm/degree	Celsius)	soil-type	dependent																
+!!	-----																																					
+!!	=======================================================================================================																																					
+!!	LAKE	DISCHARGE	(baseline	from	SHYPE2012)																																	
+!!	-----																																					
+!! gldepi	5	!!	General	ilake	depth	[m]	(used	for	ilakes	without	ilakeregion	ilrldep	parameter)																									
+gldepo	15	!!	General	olake	depth	[m]	(used	for	olakes	without	olakeregion	olrldep	parameter	or	lake_depth	from	geodata/lakedata/damdata)																					
+gicatch	1.0	!!	General	ilakecatch	[-]	(used	for	ilake	if	not	set	in	geodata	or	ilakeregion	ilricatch)																						
+gratp	    4.1172	!!	discharge	curve	for	lake	(general)	Q=gratk(w-wO)gratp																														
+gratk	   28.8373	!!	discharge	curve	for	lake	(general)	Q=gratk(w-wO)gratp																														
+grata	    0.2658	!!	upstream	area	dependence	of	discharge	curve	for	lake	"(general),"	if	">O,"	Q=(gratk*(uparea)grata)*(w-wO)gratp																								
+limqprod	0.25	!!	limit	for	water	stage	with	reduced	production	flow	from	dam	(fraction	of	regulating	volume)																						
+!!	-----																																					
+!!	ILAKE	and	OLAKE	REGIONAL	PARAMETERS	(3	ilakeregions	and	2	"olakeregions,"	defined	in	geodata)																									
+!!	-----																																					
+ilratk	    77.1954	    70.9398	    69.6528	    58.1900																																		
+ilratp	     2.7478	     2.1806	     2.5058	     2.9720																																		
+illdepth	1.00	1.00	1.00	1.00																																		
+!! ilicatch	       0.4532	       0.7663	       0.6392	       0.4856																																		
+olratk	    94.2695	    55.6461	    97.1992	    93.3254	    56.2436	    83.7389	    86.9939																															
+olratp	     1.3325	     3.8671	     1.5373	     4.3510	     3.0474	     3.0867	     3.6341																															
+olldepth	15	15	15	15	15	15	15																															
+!!																																						
+!!																																						
+!!																																						
+!!	=======================================================================================================																																					
+!!	RIVER	ROUTING	(baseline	from	SHYPE2012)																																	
+!!	-----																																					
+damp	   0.1614																																					
+rivvel	     9.9267																																					
+!! damp 0.5617753 !! fraction of delay in	the watercourse which also causes damping																																					
+!! rivvel 2.0246754 !! celerity of flood in watercourse (m/s) 																																						
+qmean 200 !! initial value for calculation of mean flow (mm/yr) - can also be given in LakeData																																						
+!!	=======================================================================================================																																					
+!!	WATER	TEMPERATURE	(baseline	from	"SHYPE2012d,"	2015-09-04)	-	initial	water	temperature	is	set	by	"iniT2,"	sorted	under	soil	temperature																				
+!!	-----																																					
+upper2deep	2.5	!!	heat	transfer	parameter	for	water	temperature	Ttwo	between	upper	and	lower	lake	layers																							
+tcfriver	30	!!	air-riverwater	heat	"flow,"	temperature	difference	coefficient																														
+scfriver	0.4	!!	air-riverwater	heat	"flow,"	solar	radiation	coefficient																														
+ccfriver	-0.3	!!	air-riverwater	heat	"flow,"	constant	coefficient																															
+lcfriver	-0.1	!!	air-riverwater	heat	"flow,"	linear	coefficient																															
+tcflake	40	!!	air-lakewater	heat	"flow,"	temperature	difference	coefficient																														
+scflake	0.63	!!	air-lakewater	heat	"flow,"	solar	radiation	coefficient																														
+ccflake	0	!!	air-lakewater	heat	"flow,"	constant	coefficient																															
+lcflake	0	!!	air-lakewater	heat	"flow,"	linear	coefficient																															
+stbcorr1	0.4	!!	parameter	for	stability	correction																																
+stbcorr2	0.25	!!	parameter	for	stability	correction																																
+stbcorr3	0	!!	parameter	for	stability	correction																																
+!!	=======================================================================================================																																					
+!!	LAKE	AND	RIVER	ICE	(baseline	from	"SHYPE2012d,"	2015-09-04)																														
+!!	-----																																					
+licewme	0.1	!!	lake	"ice,"	water	temperature	melt	efficiency	(licewme)??																													
+!!	licettf	0.1	!!	lake	"ice,"	water	temperature	threshold	for	freeze-up																												
+licetf	0	!!	lake	"ice,"	freezing	temperature																																
+licesndens	0.0024	!!	lake	"ice,"	snow	compaction	parameter																															
+licekika	10	!!	lake	"ice,"	ki/ka																																	
+licekexp	1.88	!!	lake	"ice,"	ks	=	ki*(dsnow(dice)^kexp																															
+licetmelt	1.25	!!	lake	"ice,"	degreeday	factor	for	ice	melt																													
+licewcorr	0.5	!!	lake	"ice,"	snow	fall	reduction	for	winddrift	(multiplicative)																												
+!!	-----																																					
+ricewme	0.2	!!	river	"ice,"	water	temperature	melt	efficiency																														
+!!	ricettf	0.2	!!	river	"ice,"	water	temperature	threshold	for	freeze-up																												
+ricetf	0	!!	river	"ice,"	freezing	temperature																																
+ricesndens	0.0024	!!	river	"ice,"	snow	compaction	parameter																															
+ricekika	10	!!	river	"ice,"	ki/ka																																	
+ricekexp	1.88	!!	river	"ice,"	ki/ks																																	
+ricetmelt	1.25	!!	river	"ice,"	degreeday	factor	for	ice	melt																													
+!!																																						
+!!=======================================================================================================																																						
+!!  IRRIGATION:																																						
+!!__________																																						
+sswcorr	0.66																																					
+iwdfrac	1																																					
+regirr	1																																					
+immdepth	30																																					
+irrcomp	0																																					
+!!																																						
+!!		=======================================================================================================																																				
+!!	Parameters	introduced	for	T2	model	purposes	-	they	are	not	calibrated																											
+!! rivvel1	0																																					
+!! rivvel2	0																																					
+!! rivvel3	0																																					
+!! rivwidth1	0.0864																																					
+!! rivwidth2	0.557																																					
+!! rivwidth3	0																																					
+maxwidth	1000																																					
+limt2exch	0.05																																					
+deadl	0.005																																					
+deadm	0.005																																					
+fraxe	1																																					
+fraxm	0																																					
+t2mix	0																																					
