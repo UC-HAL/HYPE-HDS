@@ -99,7 +99,8 @@ modeloption wetlandmodel 2
 !! BASIN outputs 
 !! The present basins are some large rivers distributed over different continents
 !! -----------------							
-basinoutput variable	cout rout cilv cloc crun	fnca			 	
+!! saving fnca makes the model not to preserve fnca values passed by HGDM
+basinoutput variable	cout rout cilv cloc crun
 basinoutput meanperiod	1						
 basinoutput decimals	3						
 basinoutput subbasin 

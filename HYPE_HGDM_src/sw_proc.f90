@@ -6526,7 +6526,9 @@ END SUBROUTINE calculate_interflow_between_floodplains2
 	REAL vol_frac 				! volume fraction (fraction of filling)
 	REAL depth 					! water level lake  (m) updated by HGDM
     REAL outflow_depth 			! outflow from depressions calculated by HGDM (m)
-
+	CHARACTER(LEN=100) trash !read text from HGDM input par file
+    integer ifsubid !sunid from HGDM file
+    REAL Mass_Balance !check for mass balance
 
 	!HGDM parameters (to be passed by HYPE)
 	REAL max_depth  !m
@@ -6537,7 +6539,7 @@ END SUBROUTINE calculate_interflow_between_floodplains2
     !Initial values
     outflowm3s = 0.
     outflowmm = 0.
-    lakewstmm=lakestate%water(itype,i)
+    lakewstmm=lakestate%water(itype,i) ! that already includes qin and pein
     wlmr = lakewstmm*0.001              !Water in lake [m]
 
     !! !Current parameter values
@@ -6556,6 +6558,10 @@ END SUBROUTINE calculate_interflow_between_floodplains2
 	current_depth = wlmr !m
 
     !debug only
+    !if(abs(current_depth-1.251)<=0.0001)then
+    !if(current_depth >= 1.25)then
+    !    trash='a'
+    !end if   
     !read(*,*) current_depth  !m
     !read(*,*) delta_depth
     !read(*,*) runoff_depth
@@ -6564,10 +6570,24 @@ END SUBROUTINE calculate_interflow_between_floodplains2
 
 	!model parameters
 	!To be passed later by HYPE
-    max_depth = 1.25 !m
-    max_water_area_frac = 0.5 !fraction
-    area_mult = 1.0058485 !for SCRB
-    area_power = 1.5198 !for SCRB
+	!Now, are read from a text file, except max_depth
+    !max_depth = w0Today ! set by ilake region (lake_depth in GeoData is for olakes)!1.25 !m
+
+    !allocate(temp_data(nsub,3))
+    open(unit=122, file='1-HGDM_par.txt',status='old')
+    read(122,*) trash
+    read(122,*) trash
+    do !iread=1,nsub
+        !read par values for every line, but exit on the index
+        read(122,*) ifsubid, max_depth, max_water_area_frac, area_mult, area_power!temp_data(iread,:)
+        if(ifsubid .eq. subid) exit !line matches subid index
+    end do
+    close(122)
+	
+!    max_depth = 1.25 !m
+!    max_water_area_frac = 0.5 !fraction
+!    area_mult = 1.0058485 !for SCRB
+!    area_power = 1.5198 !for SCRB
 
 	!state variables
 	contrib_frac = 1-fnca !state variable to be passed by HYPE
@@ -6587,7 +6607,10 @@ END SUBROUTINE calculate_interflow_between_floodplains2
 	!>Check outflow against lake volume
     IF(outflowmm>lakewstmm) outflowmm = lakewstmm    !Safety for rounded wlmr and ldepth = 0
     !MIA Check to limit the storage to max_depth and assign the excess as outflow
-    IF((lakewstmm/1000.0) > max_depth) outflowmm = lakewstmm - (max_depth*1000.0)
+    IF((lakewstmm/1000.0) > max_depth) then
+		outflowmm = lakewstmm - (max_depth*1000.0)
+		outflow_depth = outflowmm/1000.0
+	END IF					  
 
     outflowm3s = outflowmm/qunitfactor
 
@@ -6599,11 +6622,14 @@ END SUBROUTINE calculate_interflow_between_floodplains2
     IF(conductwb) volumeflow(w_iltomr,i) = outflowm3s * seconds_per_timestep  !m3/ts
     wst = lakestate%water(itype,i)  !mm
 	lakearea = area_frac * max_water_area_frac * basinarea !m2
-
+    !checking mass balance
+    ! lakewstmm  already includes qin and pein (initial sorage + inflow)
+    ! wst final storage
+    Mass_Balance = lakewstmm - wst - outflowmm
 	!!debug writing the output to file
 	open(unit=123, file='0-output.txt',status='old', access='append')
 	write(123,*)lakewstmm,wlmr,w0Today,delta_depth,runoff_depth,current_depth,&
-                contrib_frac,area_frac,outflow_depth,outflowmm,wst,lakearea
+                contrib_frac,area_frac,outflow_depth,outflowmm,wst,lakearea,Mass_Balance
     close(123)
 
   END SUBROUTINE calculate_HGDM_depressions_outflow

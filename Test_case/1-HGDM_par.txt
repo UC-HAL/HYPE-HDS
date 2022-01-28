@@ -1,0 +1,4 @@
+!HGDM parameter file. Each row represents a subbasin, each column represents a parameter
+subid	max_depth	max_water_area_frac	area_mult	area_power
+1	1.25	0.5	1.0058485	1.5198
+2	1.2	0.6	1.5	2.0
