@@ -6491,10 +6491,11 @@ END SUBROUTINE calculate_interflow_between_floodplains2
     !Argument declarations
     INTEGER, INTENT(IN) :: i             !<index of current subbasin
     INTEGER, INTENT(IN) :: subid         !<subid of current subbasin
+    !INTEGER, INTENT(IN) :: nsub         !<number of subbasins
     INTEGER, INTENT(IN) :: ns            !<number of substances
     REAL, INTENT(IN)    :: qin           !<lateral inflow (runoff from upland) of lake (m3/s)  - river discharge and point sources - distributed by icatch
     REAL, INTENT(IN)    :: pein          !<vertical inflow of lake (m3/s) - precipitation and evaporation - distributed by lake area
-    REAL, INTENT(INOUT) :: lakearea      !<lakearea (m2)
+    REAL, INTENT(IN) 	:: lakearea      !<lakearea (m2)
 	REAL, INTENT(IN)    :: basinarea      !<basinarea (m2)
     REAL, INTENT(IN)    :: qunitfactor   !<factor for transforming flow for lake from m3/s to mm/timestep and back
     REAL, INTENT(OUT)   :: outflowm3s    !<outflow of lake (m3/s)
@@ -6526,7 +6527,7 @@ END SUBROUTINE calculate_interflow_between_floodplains2
 	REAL vol_frac 				! volume fraction (fraction of filling)
 	REAL depth 					! water level lake  (m) updated by HGDM
     REAL outflow_depth 			! outflow from depressions calculated by HGDM (m)
-	CHARACTER(LEN=100) trash !read text from HGDM input par file
+    CHARACTER(LEN=100) trash !read text from HGDM input par file
     integer ifsubid !sunid from HGDM file
     REAL Mass_Balance !check for mass balance
 
@@ -6542,6 +6543,8 @@ END SUBROUTINE calculate_interflow_between_floodplains2
     lakewstmm=lakestate%water(itype,i) ! that already includes qin and pein
     wlmr = lakewstmm*0.001              !Water in lake [m]
 
+
+
     !! !Current parameter values
     !! ratingc = ratingk(itype,i)
     !! ratinge = 0.
@@ -6555,13 +6558,16 @@ END SUBROUTINE calculate_interflow_between_floodplains2
 	delta_depth = delta_depth / 1000.0 ! mm/timestep -> m/timestep
 	runoff_depth = qin * qunitfactor !runoff from upland m3/s -> mm/timestep
 	runoff_depth = runoff_depth / 1000.0 ! mm/timestep -> m/timestep
-	current_depth = wlmr !m
+
+	! water in depressions before inflows
+    !(lakewstmm - peinmm - qinmm)
+	current_depth = wlmr - delta_depth - runoff_depth !m
 
     !debug only
     !if(abs(current_depth-1.251)<=0.0001)then
     !if(current_depth >= 1.25)then
     !    trash='a'
-    !end if   
+    !end if
     !read(*,*) current_depth  !m
     !read(*,*) delta_depth
     !read(*,*) runoff_depth
@@ -6583,11 +6589,11 @@ END SUBROUTINE calculate_interflow_between_floodplains2
         if(ifsubid .eq. subid) exit !line matches subid index
     end do
     close(122)
-	
-!    max_depth = 1.25 !m
-!    max_water_area_frac = 0.5 !fraction
-!    area_mult = 1.0058485 !for SCRB
-!    area_power = 1.5198 !for SCRB
+
+
+    !max_water_area_frac = 0.5 !fraction
+    !area_mult = 1.0058485 !for SCRB
+    !area_power = 1.5198 !for SCRB
 
 	!state variables
 	contrib_frac = 1-fnca !state variable to be passed by HYPE
@@ -6604,13 +6610,15 @@ END SUBROUTINE calculate_interflow_between_floodplains2
 	!update HYPE variables
 	outflowmm = outflow_depth * 1000.0 !m -> mm
 	fnca = 1 - contrib_frac
+	!we may use rating cureves at this point, the outflow from HGDM will be the input
 	!>Check outflow against lake volume
     IF(outflowmm>lakewstmm) outflowmm = lakewstmm    !Safety for rounded wlmr and ldepth = 0
     !MIA Check to limit the storage to max_depth and assign the excess as outflow
-    IF((lakewstmm/1000.0) > max_depth) then
-		outflowmm = lakewstmm - (max_depth*1000.0)
-		outflow_depth = outflowmm/1000.0
-	END IF					  
+    !commented adter changing the current depth to be depth before inflows
+    !!IF((lakewstmm/1000.0) > max_depth)then
+    !!    outflowmm = lakewstmm - (max_depth*1000.0)
+    !!    outflow_depth = outflowmm/1000.0
+    !!END IF
 
     outflowm3s = outflowmm/qunitfactor
 
@@ -6621,15 +6629,16 @@ END SUBROUTINE calculate_interflow_between_floodplains2
     IF(conductload) load(:,11) = outflowm3s * coutflow * seconds_per_timestep * 1.E-3 !Load at point K, outflow ilake (kg/timestep)
     IF(conductwb) volumeflow(w_iltomr,i) = outflowm3s * seconds_per_timestep  !m3/ts
     wst = lakestate%water(itype,i)  !mm
-	lakearea = area_frac * max_water_area_frac * basinarea !m2
+	! this should be updated to change lake area
+	! lakearea = area_frac * max_water_area_frac * basinarea !m2
     !checking mass balance
     ! lakewstmm  already includes qin and pein (initial sorage + inflow)
     ! wst final storage
-    Mass_Balance = lakewstmm - wst - outflowmm
+    !Mass_Balance = lakewstmm - wst - outflowmm
 	!!debug writing the output to file
 	open(unit=123, file='0-output.txt',status='old', access='append')
 	write(123,*)lakewstmm,wlmr,w0Today,delta_depth,runoff_depth,current_depth,&
-                contrib_frac,area_frac,outflow_depth,outflowmm,wst,lakearea,Mass_Balance
+                contrib_frac,area_frac,outflow_depth,outflowmm,wst,lakearea!,Mass_Balance
     close(123)
 
   END SUBROUTINE calculate_HGDM_depressions_outflow
@@ -6755,10 +6764,7 @@ END SUBROUTINE calculate_interflow_between_floodplains2
 		delta_depth_applied = (iteration_delta * water_area_frac)  + &
         iteration_runoff * upland_area_frac * (1.0 - iteration_contrib_frac)
 
-		!This line was commented because HYPE takes care of
-		! adding and removing water out of lakes/depressions
-		!HYPE
-		!current_depth = current_depth + delta_depth_applied
+		current_depth = current_depth + delta_depth_applied
 
 		! check to see if max depth of storage is exceeded
 		if (current_depth > max_depth) then
