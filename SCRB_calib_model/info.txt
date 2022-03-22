@@ -1,28 +1,28 @@
 !! ----------------------------------------------------------------------------							
 !!							
-!! HYPE - GRIP/GL objective 1
+!! HYPE-HGDM SCRB
 !!							
 !! -----------------------------------------------------------------------------							
 !! Check Indata during first runs (deactivate after first runs) 
-indatacheckonoff 	2						
-indatachecklevel	2						
+indatacheckonoff 	0						
+indatachecklevel	0						
 !!
 !! -----------------------------------------------------------------------------							
 !!						
 !! Calculation settings:							
 !!							
 !! -----------------							
-bdate      	2000-06-01						
-cdate      	2000-06-01						
-edate      	2010-08-30
+bdate      	2000-01-01						
+cdate      	2000-10-01						
+edate      	2017-09-30
 resultdir ./results/						
-instate	n						
+instate	n			
 !! outstatedate	1991-01-01						
 readdaily 	y						
 submodel 	n						
 calibration	n						
 readobsid       n							
-soilstretch	y						
+soilstretch	n						
 !! Soilstretch enable the use of soilcorr parameters (strech soildepths in layer 2 and 3)
 steplength	1d							
 !! -----------------------------------------------------------------------------							
@@ -34,7 +34,7 @@ readsfobs	n	!! For observed snowfall fractions in SFobs.txt
 readswobs	n	!! For observed shortwave radiation in SWobs.txt
 readuobs	n	!! For observed wind speeds in Uobs.txt
 readrhobs	n	!! For observed relative humidity in RHobs.txt					
-readtminobs  	y	!! For observed min air temperature in TMINobs.txt				
+readtminobs	y	!! For observed min air temperature in TMINobs.txt				
 readtmaxobs	y	!! For observed max air temperature in TMAXobs.txt
 soiliniwet	n	!! initiates soil water to porosity instead of field capacity which is default (N). Set Y to use porosity.
 usestop84	n	!! flag to use the old return code 84 for a successful run					
@@ -77,16 +77,17 @@ modeloption snowfallmodel	0
 modeloption snowdensity	0
 modeloption snowfalldist	2
 modeloption snowheat	0
-modeloption snowmeltmodel	2					
+modeloption snowmeltmodel	0	
+modeloption	snowevapmodel	1				
 modeloption snowevaporation	1					
-modeloption lakeriverice	2						
-substance	T2 						
-modeloption deepground	1 	
+modeloption lakeriverice	0									
+modeloption deepground	0 	
 modeloption glacierini	1
 modeloption floodmodel 0
 modeloption frozensoil 2
 modeloption infiltration 3
-modeloption petmodel	4
+modeloption surfacerunoff 0
+modeloption petmodel	1
 modeloption wetlandmodel 2		
 !! ------------------------------------------------------------------------------------							
 !!							
@@ -99,20 +100,17 @@ modeloption wetlandmodel 2
 !! BASIN outputs 
 !! The present basins are some large rivers distributed over different continents
 !! -----------------							
-!! saving fnca makes the model not to preserve fnca values passed by HGDM
-basinoutput variable	cout rout cilv cloc crun
+basinoutput variable	rout	cout	cilv	evap	fnca	fcon
 basinoutput meanperiod	1						
-basinoutput decimals	3						
-basinoutput subbasin 
-basinoutput subbasin	1
+basinoutput decimals	3
+basinoutput subbasin	4054125
 !! -----------------							
 !! TIME outputs 
 !! -----------------							
-timeoutput variable	cout
-timeoutput meanperiod	1 				
-timeoutput decimals	3						
-timeoutput meanperiod 3
-timeoutput subbasin	1
+!! timeoutput variable	cout
+!! timeoutput meanperiod	1 				
+!! timeoutput decimals	3						
+!! timeoutput subbasin	4054125
 !! -----------------							
 !! MAP outputs
 !! -----------------							
@@ -128,7 +126,7 @@ timeoutput subbasin	1
 !! -----------------			
 crit meanperiod	1						
 crit datalimit	30	
-crit subbasin	1
+crit subbasin	4054125
 !! -----------------			
 !! Criterion-specific settings
 !! -----------------							

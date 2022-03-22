@@ -21,6 +21,7 @@ MODULE MODELMODULE
   USE HYPEVARIABLES     !model variables, HYPE model
   USE HYPE_WATERBALANCE !water balance variables and indices
   USE UPDATING
+
 !Subroutines also uses GENERAL_WATER_CONCENTRATION, GLACIER_SOILMODEL, SOILMODEL_DEFAULT,
 !SOIL_PROCESSES, NPC_SOIL_PROCESSES, SURFACEWATER_PROCESSES, NPC_SURFACEWATER_PROCESSES,
 !IRRIGATION_MODULE, REGIONAL_GROUNDWATER_MODULE
@@ -82,7 +83,12 @@ MODULE MODELMODULE
 
     IF(funit==0)THEN
       WRITE(*,601) '---------------------------------------------'
-      WRITE(*,601) '   HYPE version 5.12.1                       '
+      WRITE(*,601) '        HYPE-HGDM version 5.12.1             '
+	  WRITE(*,601) '             W A R N I N G                   '
+	  WRITE(*,601) 'This version is still under development, and '
+	  WRITE(*,601) 'is intended to be used for the prairie       '
+	  WRITE(*,601) 'pothole region. Regular ilake is not working '
+	  WRITE(*,601) 'and HGDM is activated by default.            '
       WRITE(*,601) '---------------------------------------------'
       WRITE(*,601) 'New versions of HYPE at the HYPE Open Source '
       WRITE(*,601) 'Community website (hypecode.smhi.se), as well'
@@ -1469,6 +1475,14 @@ MODULE MODELMODULE
           ENDIF
         ENDIF
       ENDIF
+      !************
+      ! set variables to be full ( used by HGDM)
+      ! the most downstream depression (1) is used to store since all depressions
+      ! are lumped in HGDM
+	  ! if(HGDM is active) then
+      lakestate%volfrac(1,i) = 1.0 ! set to be full for HGDM MIA
+	  lakestate%fcarea(1,i) = 1.0 ! set to be full for HGDM MIA
+      !************
       IF(slc_olake>0)THEN
         lakestate%water(2,i) = basin(i)%lakedepth(2) * 1000.         !ordinary olake water stage (mm)
         IF(ALLOCATED(damindex))THEN
@@ -2192,6 +2206,7 @@ MODULE MODELMODULE
     REAL totaloutflow,ctotaloutflow(numsubstances) !help for output
 
 
+
     !Start of subroutine calculations
     !> \b Algorithm \n
     IF(conductwb) wbflows=0.  !zeroing the timestep for all flows
@@ -2283,6 +2298,7 @@ MODULE MODELMODULE
 
 
     !>Main subbasin-loop, subbasins calculated in flow order
+
     subbasinloop:  &
     DO i = 1,nsub
 
@@ -3352,11 +3368,7 @@ MODULE MODELMODULE
       fnca = 0.
       fcon = 1.
       !HGDM prairie algorithm
-      HGDMFLAG = 1 !flag to activate HGDM
-      if(HGDMFLAG .eq. 1)then
-        fnca = outvar(i,outvarindex(o_fnca)) ! set to previous fnca if HGDM is not active
-        !fcon = outvar(i,outvarindex(o_fcon))
-      end if
+      HGDMFLAG = 1 !flag to activate HGDM 1 is active
       a = 0.
       IF(slc_ilake>0)THEN
         j = slc_ilake
@@ -3479,27 +3491,18 @@ MODULE MODELMODULE
           CALL calculate_ilakesection_outflow(i,basin(i)%subid,numsubstances,qin-pein,pein,    &
                    lakearea(itype),qunitfactor,lakeoutflow(itype),concout,  &
                    Lpathway,wbflows,lakewst(itype),fnca,fcon,lakestate)
-        ELSEIF(HGDMFLAG .eq. 1) THEN !this creates error because HGDMflag is not defined
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		ELSEIF(HGDMFLAG .eq. 1) THEN !HGDM is activated
 			!MIA Call HGDM algorithm for the prairies
 			pein = (prec-evapl)/qunitfactor
 			! net water inouts (qin) is separated into runoff (qin-pein) and P+E (pein)
-
 			CALL calculate_HGDM_depressions_outflow(i,basin(i)%subid,numsubstances,qin-pein, pein,   &
 					 lakearea(itype),basin(i)%area,qunitfactor,lakeoutflow(itype),concout,  &
 					 Lpathway,wbflows,lakewst(itype),fnca,lakestate)
 
 			! update state variables/outputs
-			! lakearea(itype) is updated inside the subroutine
-			!update lake SLC fraction
-			!This needs to consider re-calc other SLCs within the basin so that they sum up to 1
-			!This will be taken care of in the next versions
-			!classbasin(i,j)%part = lakearea(itype) / basin(i)%area
-			!check to make sure that the sum of all slcs =1
-			!if ilake =60%, then the rest need to be 40%
-			outvar(i,outvarindex(o_fnca)) = fnca
-			!fcon = 1-fnca
-			!outvar(i,outvarindex(o_fcon)) = fcon
-			!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			fcon = 1.0 -fnca
+		!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		ELSE
 		  ! calculate outflow using regular ilake
           CALL calculate_ilake_outflow(i,basin(i)%subid,numsubstances,qin,    &
@@ -7136,4 +7139,3 @@ MODULE MODELMODULE
   END SUBROUTINE calculate_local_river
 
   END MODULE
-
