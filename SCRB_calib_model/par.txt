@@ -1,0 +1,99 @@
+!!	=======================================================================================================									
+!! Parameter file for:										
+!! SCRB										
+!!	=======================================================================================================									
+!!										
+!!	------------------------									
+!!										
+!!	=======================================================================================================									
+!!	"SNOW - MELT, ACCUMULATION, AND DISTRIBUTION; sublimation is sorted under Evapotranspiration"									
+!!	-----									
+!!	"General snow accumulation and melt related parameters (baseline values from SHYPE, unless noted otherwise)"									
+ttpi	1.7083	!! width of the temperature interval with mixed precipitation								
+sdnsnew	0.13	!! density of fresh snow (kg/dm3)								
+snowdensdt	0.0016	!! snow densification parameter								
+fsceff	1	!! efficiency of fractional snow cover to reduce melt and evap								
+cmrefr	0.2	"!! snow refreeze capacity (fraction of degreeday melt factor) - baseline value from HBV (pers comm Barbro Johansson, but also in publications)"								
+!!	-----									
+!!	Landuse dependent snow melt parameters									
+!!LUSE:	LU1	LU2	LU3	LU4	LU5					
+ttmp	  0.0648	  1.8571	 -1.9579	  0.6952	 -0.8520	"!! Snowmelt threshold temperature (deg), baseline zero for all landuses"				
+cmlt	   3.0789	   9.3077	   2.9411	   6.4778	   3.6930	!! Snowmelt degree day coef (mm/deg/timestep)				
+!! cmrad	0.25	0.25	0.25	0.25	0.25	!! Snowmelt radiation coef (mm/MJ/timestep)				
+!! snalbmin	0.25	0.25	0.25	0.25	0.25	"!! Snow albedo, minimum"				
+!! snalbmax	0.85	0.85	0.85	0.85	0.85	"!! Snow albedo, maximum"				
+!! snalbkexp	0.1	0.1	0.1	0.1	0.1	"!! Snow albedo, exponential ageing coefficient"				
+!!	-----									
+!!	=======================================================================================================									
+!!	EVAPOTRANSPIRATION PARAMETERS									
+!!	-----									
+!!	General evapotranspiration parameters									
+lp	    0.7771	!! Threshold for water content reduction of transpiration (fraction of field capacity) - baseline value from SHYPE because its more realistic with a value slightly below field capacity								
+epotdist	   5.6679	!! Coefficient in exponential function for potential evapotranspiration's depth dependency - baseline from EHYPE and/or SHYPE (very similar)								
+!! krs	0.16	!! Hargreaves Turbidity parameter - baseline value from FAO recommendation for inland conditions														
+!!	-----									
+!!										
+!!LUSE:	LU1	LU2	LU3	LU4	LU5					
+!! kc3	_kc_01_	_kc_02_	_kc_03_	_kc_04_	_kc_05_					
+!! alb	_alb_01_	_alb_02_	_alb_03_	_alb_04_	_alb_05_	!! Albedo used to derive net radiation for PT-PET				
+cevp	  0.1975	  0.3332	  0.7176	  0.5977	  0.4920
+ttrig	0	0	0	0	0	!! Soil temperature threshold to allow transpiration - disabled if treda is set to zero				
+treda	0.84	0.84	0.84	0.84	0.95	"!! Coefficient in soil temperature response function for root water uptake, default value from Ågren et al, set to zero to disable the function"				
+tredb	0.4	0.4	0.4	0.4	0.4	"!! Coefficient in soil temperature response fuction for root water uptake, default value from Ågren et al"				
+fepotsnow	0.8	0.8	0.8	0.8	0.8	!! Fraction of potential evapotranspiration used for snow sublimation				
+!!										
+!! Frozen soil infiltration parameters										
+!! SOIL:	S1	S2								
+bfroznsoil	     2.4691	     2.9152								
+logsatmp	1.15	1.15								
+bcosby	    13.6614	    19.4154								
+!!	=======================================================================================================									
+!!	"SOIL/LAND HYDRAULIC RESPONSE PARAMETERS - recession coef., water retention, infiltration, macropore, surface runoff; etc."									
+!!	-----									
+!!	Soil-class parameters									
+!!	S1	S2								
+rrcs1	    0.5424	    0.0872	!! recession coefficients uppermost layer (fraction of water content above field capacity/timestep)							
+rrcs2	    0.1901	    0.0033	!! recession coefficients bottom layer (fraction of water content above field capacity/timestep)							
+rrcs3	    0.0060	!! Recession coefficient (upper layer) slope dependance (fraction/deg)								
+sfrost	1	1	!! frost depth parameter (cm/degree Celsius) soil-type dependent							
+wcwp	    0.1088	    0.3568	!! Soil water content at wilting point (volume fraction)											
+wcfc	    0.2759	    0.4983	"!! Field capacity, layerOne (additional to wilting point) (volume fraction)"										
+wcep	    0.1595	    0.4335	"!! Effective porosity, layerOne (additional to wp and fc) (volume fraction)"							
+!!	-----									
+!!	Landuse-class parameters	parameters								
+!!LUSE:	LU1	LU2	LU3	LU4	LU5					
+srrcs	    0.0276	    0.1183	    0.0215	    0.1260	1	!! Runoff coefficient for surface runoff from saturated overland flow of uppermost soil layer (fraction/timestep)				
+!!	-----									
+!!	Regional groundwater outflow									
+rcgrw	0	!! recession coefficient for regional groundwater outflow from soil layers								
+!!	=======================================================================================================									
+!!	SOIL TEMPERATURE AND SOIL FROST DEPT									
+!!	-----									
+!!	General									
+deepmem	1000	!! temperature memory of deep soil (days)								!! temperature memory of deep soil (days)
+!!iniT2	0	"!! (error, doesnt read??!!) starting value in soil, concentration T2 - temperature (also for lake and river water T2 concentration)"								
+!!-----										
+!!LUSE:	LU1	LU2	LU3	LU4	LU5					
+surfmem	17.8	17.8	17.8	17.8	5.15	!! upper soil layer soil temperature memory (days)				
+depthrel	1.1152	1.1152	1.1152	1.1152	2.47	!! depth relation for soil temperature memory (/m)				
+frost	2	2	2	2	2	!! frost depth parameter (cm/degree Celsius) soil-type dependent				
+!!	-----									
+!!	=======================================================================================================									
+!!	LAKE DISCHARGE									
+!!	-----									
+!!	-----									
+!!	"ILAKE and OLAKE REGIONAL PARAMETERS (1 ilakeregions , defined in geodata)"									
+!!	ILAKE parameters									
+!!	PPR (Prairie Pothole Region)									
+!! ilRegion	PPR 1									
+ilratk	77.1954			!! _ilratk_01_						
+ilratp	2.7478			!! _ilratp_01_						
+illdepth	1.25									
+ilicatch	1									
+!!										
+!!	=======================================================================================================									
+!!	RIVER ROUTING									
+!!	-----									
+damp	   0.8952	!! fraction of delay in the watercourse which also causes damping								
+rivvel	     0.6905	!! celerity of flood in watercourse (rivvel>0)								
+qmean 	200	!! initial value for calculation of mean flow (mm/yr) - can also be given in LakeData								
