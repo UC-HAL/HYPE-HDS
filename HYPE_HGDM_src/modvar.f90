@@ -160,7 +160,7 @@ MODULE MODVAR
     INTEGER soillayer     !<Number of soillayers (per class)
     INTEGER riverqueue    !<Maximum number of lag timesteps for river queue
     INTEGER timestep      !<Number of timesteps per day
-    INTEGER lakesection   !<Maximum number of lake sections per subbasin (laketype 1)
+    INTEGER lakesection   !<Maximum number of connectivity ilake model's lake sections or HGDM lakes per subbasin
   END TYPE STATEDIMENSIONTYPE
 !> \brief Type for holding data about simulation configuration
   TYPE SIMULATIONCONFIGURATIONTYPE
@@ -567,13 +567,13 @@ MODULE MODVAR
   INTEGER, PARAMETER :: p_frozensoil     = 17 !Options for frozen/unfrozen soil water content (0) no frozen water in soil (current HYPE), (1) unfrozen water as function of temperature, (1) unfrozen water as function of three temperatures
   INTEGER, PARAMETER :: p_snowheat       = 18 !Options for snow heat content, (0) off (1) on (snow melt is delayed until heat content correspond to snow temperature = 0°C) 
   INTEGER, PARAMETER :: p_surfacerunoff  = 19 !Options for surface runoff and infiltration, (0) surface runoff based on water above saturation (1) surface runoff based on soil moisture (continous formulation)  (2) surface runoff based on soil moisture and ginfilt (continous formulation) (3) surface runoff based on soil moisture and ginfilt (discrete formulation)
-  INTEGER, PARAMETER :: p_connectivity   = 20 !Hydrological connectivity within subbasins, (0) no connectivity model, (1) ilake fill-and-spill model 
+  INTEGER, PARAMETER :: p_connectivity   = 20 !Hydrological connectivity within subbasins, (0) no connectivity model, (1) ilake fill-and-spill model, (2) HGDM model, (3) fill-and-spill and HGDM models 
   INTEGER, PARAMETER :: num_modelprocess = 20 !Number of processes with options in HYPE
   CHARACTER(LEN=16),ALLOCATABLE :: modeloptionname(:)
   INTEGER,ALLOCATABLE :: modeloption(:)
   
   INTEGER :: maxmodelsinoption(num_modelprocess)
-  PARAMETER(maxmodelsinoption = [2,3,3,6,3,2,2,2,3,2,2,4,2,3,4,3,3,2,5,2])
+  PARAMETER(maxmodelsinoption = [2,3,3,6,3,2,2,2,3,2,2,4,2,3,4,3,3,2,5,4])
 
   CHARACTER(LEN=64) :: petmodelnames(0:maxmodelsinoption(p_petmodel)-1)  !<PETmodel names
   PARAMETER(petmodelnames = [CHARACTER(LEN=64) :: 'current HYPE', 'current HYPE without replacement for observations', '(modified) Jensen', '(modified) Hargreaves-Samani', 'Priestly-Taylor', 'FAO PenmanMonteith'])
@@ -614,7 +614,7 @@ MODULE MODVAR
   CHARACTER(LEN=64) :: surfacerunoffmodelnames(0:maxmodelsinoption(p_surfacerunoff)-1)   !<surfacerunoff names
   PARAMETER(surfacerunoffmodelnames = [CHARACTER(LEN=64) :: 'based on soil water treshold', 'based on soil moisture (cont)', 'based on soil moisture and rain (cont)', 'based on soil moisture (disc)', 'based on soil moisture and rain (disc)'])
   CHARACTER(LEN=64) :: connectivitymodelnames(0:maxmodelsinoption(p_connectivity)-1)   !<Connectivity names
-  PARAMETER(connectivitymodelnames = [CHARACTER(LEN=64) :: 'no connectivity model', 'fill-and-spill in ilake sections'])
+  PARAMETER(connectivitymodelnames = [CHARACTER(LEN=64) :: 'no connectivity model', 'fill-and-spill in ilake sections', 'HGDM ilake model', 'HGDM or fill-and-spill models'])
 !> \}
 
 !> \name Variables for input data

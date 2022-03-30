@@ -1471,7 +1471,11 @@ MODULE MODELMODULE
               lakestate%volfrac(k,i) = lakesectiondata(i,k)%farea
             ENDDO
           ELSE
-            lakestate%volfrac(:,i) = 0.
+          !ELSEIF(basin(i)%depth_hgdm>0)THEN
+            lakestate%volfrac(1,i) = 1.0 ! set to be full for HGDM MIA (only used 1st lake section)
+            lakestate%fcarea(1,i) = 1.0 ! set to be full for HGDM MIA
+          !ELSE
+            !lakestate%volfrac(:,i) = 0.  !Not used
           ENDIF
         ENDIF
       ENDIF
@@ -1480,8 +1484,8 @@ MODULE MODELMODULE
       ! the most downstream depression (1) is used to store since all depressions
       ! are lumped in HGDM
 	  ! if(HGDM is active) then
-      lakestate%volfrac(1,i) = 1.0 ! set to be full for HGDM MIA
-	  lakestate%fcarea(1,i) = 1.0 ! set to be full for HGDM MIA
+      !lakestate%volfrac(1,i) = 1.0 ! set to be full for HGDM MIA
+	  !lakestate%fcarea(1,i) = 1.0 ! set to be full for HGDM MIA
       !************
       IF(slc_olake>0)THEN
         lakestate%water(2,i) = basin(i)%lakedepth(2) * 1000.         !ordinary olake water stage (mm)
@@ -3485,26 +3489,28 @@ MODULE MODELMODULE
 
 
         !Calculate and remove outflow from lake
-        IF(modeloption(p_connectivity)>0 .AND. basin(i)%lakesection>0)THEN
+        IF((modeloption(p_connectivity)==1.OR.modeloption(p_connectivity)==3) .AND. basin(i)%lakesection>0)THEN
           !DG20200625 - ilake section connectivity model -> note that qin is separated into runoff and P+E
           pein = (prec-evapl)/qunitfactor
           CALL calculate_ilakesection_outflow(i,basin(i)%subid,numsubstances,qin-pein,pein,    &
                    lakearea(itype),qunitfactor,lakeoutflow(itype),concout,  &
                    Lpathway,wbflows,lakewst(itype),fnca,fcon,lakestate)
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		ELSEIF(HGDMFLAG .eq. 1) THEN !HGDM is activated
-			!MIA Call HGDM algorithm for the prairies
-			pein = (prec-evapl)/qunitfactor
-			! net water inouts (qin) is separated into runoff (qin-pein) and P+E (pein)
-			CALL calculate_HGDM_depressions_outflow(i,basin(i)%subid,numsubstances,qin-pein, pein,   &
-					 lakearea(itype),basin(i)%area,qunitfactor,lakeoutflow(itype),concout,  &
-					 Lpathway,wbflows,lakewst(itype),fnca,lakestate)
+        ELSEIF(modeloption(p_connectivity)==2)THEN   !all ilake is hgdm so far
+        !ELSEIF((modeloption(p_connectivity)==2.OR.modeloption(p_connectivity)==3) .AND. basin(i)%depth_hgmd>0)THEN
+          !ELSEIF(HGDMFLAG .eq. 1) THEN !HGDM is activated
+          !MIA Call HGDM algorithm for the prairies
+          pein = (prec-evapl)/qunitfactor
+          ! net water inouts (qin) is separated into runoff (qin-pein) and P+E (pein)
+          CALL calculate_HGDM_depressions_outflow(i,basin(i)%subid,numsubstances,qin-pein, pein,   &
+            lakearea(itype),basin(i)%area,qunitfactor,lakeoutflow(itype),concout,  &
+            Lpathway,wbflows,lakewst(itype),fnca,lakestate)
 
-			! update state variables/outputs
-			fcon = 1.0 -fnca
-		!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		ELSE
-		  ! calculate outflow using regular ilake
+          ! update state variables/outputs
+          fcon = 1.0 -fnca
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ELSE
+          ! calculate outflow using regular ilake
           CALL calculate_ilake_outflow(i,basin(i)%subid,numsubstances,qin,    &
                  lakearea(itype),qunitfactor,lakeoutflow(itype),concout,  &
                  Lpathway,wbflows,lakewst(itype),lakestate)
