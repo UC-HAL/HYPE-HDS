@@ -558,7 +558,7 @@ MODULE HYPEVARIABLES
   INTEGER,PARAMETER :: n_ricew1por  = 434 !<Parameter variable index
   INTEGER,PARAMETER :: n_ricew0ice  = 435 !<Parameter variable index
   INTEGER,PARAMETER :: n_ricew1ice  = 436 !<Parameter variable index
-  INTEGER,PARAMETER :: n_max_par    = 436    !<Maximum of Parameters
+  INTEGER,PARAMETER :: n_max_par    = 437    !<Maximum of Parameters
 !>\}
 
 !Indices for model parameters
@@ -1006,26 +1006,27 @@ MODULE HYPEVARIABLES
   INTEGER,PARAMETER :: m_ilrrat2     = 18
   INTEGER,PARAMETER :: m_ilrldep     = 19
   INTEGER,PARAMETER :: m_ilricatch   = 20
+  INTEGER,PARAMETER :: m_ilhgdmdep   = 21
 !>\}
 
 !> \name Olake region dependent model parameter indices
 !> \{
-  INTEGER,PARAMETER :: m_olrrat1  = 21
-  INTEGER,PARAMETER :: m_olrrat2  = 22
-  INTEGER,PARAMETER :: m_olrldep  = 23
+  INTEGER,PARAMETER :: m_olrrat1  = 22
+  INTEGER,PARAMETER :: m_olrrat2  = 23
+  INTEGER,PARAMETER :: m_olrldep  = 24
 !>\}
 
 !> \name Surface water (lake) region dependent model parameter indices (some only for olakes)
 !> \{
-  INTEGER,PARAMETER :: m_velpar1  = 24
-  INTEGER,PARAMETER :: m_velpar2  = 25
-  INTEGER,PARAMETER :: m_velpar3  = 26
-  INTEGER,PARAMETER :: m_widpar1  = 27
-  INTEGER,PARAMETER :: m_widpar2  = 28
-  INTEGER,PARAMETER :: m_widpar3  = 29
-  INTEGER,PARAMETER :: m_tpmean   = 30
-  INTEGER,PARAMETER :: m_tnmean   = 31
-  INTEGER,PARAMETER :: m_tocmean  = 32
+  INTEGER,PARAMETER :: m_velpar1  = 25
+  INTEGER,PARAMETER :: m_velpar2  = 26
+  INTEGER,PARAMETER :: m_velpar3  = 27
+  INTEGER,PARAMETER :: m_widpar1  = 28
+  INTEGER,PARAMETER :: m_widpar2  = 29
+  INTEGER,PARAMETER :: m_widpar3  = 30
+  INTEGER,PARAMETER :: m_tpmean   = 31
+  INTEGER,PARAMETER :: m_tnmean   = 32
+  INTEGER,PARAMETER :: m_tocmean  = 33
 !>\}
 
 !> \name LakeData dependent model parameter indices

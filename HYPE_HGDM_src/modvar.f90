@@ -187,6 +187,7 @@ MODULE MODVAR
     REAL    :: ilakecatch = 0. !<part of catchment/runoff that runs to ilake
     REAL    :: iwetcatch = 0.  !<part of catchment/runoff that runs to iwet
     REAL    :: lakedepth(2) = 0.   !<lake water depth at threshold (m) (ilake and olake)
+    REAL    :: hgdmdepth = 0.   !<maximum depth of ilake modelled with HGDM (threshold for outflow)
     REAL    :: closewater = 0. !<part of area (possibly agricultural area) close to water courses
     REAL    :: buffer = 0.     !<part of river length with buffer zones (of river in the area above (e.g. agricultural area))
     REAL    :: eroindex = 1.   !<erosion index, used for erosion model 1

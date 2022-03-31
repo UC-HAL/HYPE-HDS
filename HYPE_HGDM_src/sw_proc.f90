@@ -6583,7 +6583,8 @@ END SUBROUTINE calculate_interflow_between_floodplains2
     w0Today = basin(i)%lakedepth(itype)
 	! read HGDM input parameters
 	max_water_area_frac = lakearea/basinarea
-	max_depth = basin(i)%lakedepth(itype)
+	max_depth = basin(i)%hgdmdepth
+	!max_depth = basin(i)%lakedepth(itype)    !CP220331 changed to hgdm_depth 
 	max_depth = max_depth*(lakearea/basinarea) !v1.3 scale max_depth to be basin average
 	! hard coded parameter values (area_frac is fixed to 1)
     area_mult = 1.0058485 !for SCRB
@@ -6608,10 +6609,11 @@ END SUBROUTINE calculate_interflow_between_floodplains2
 	runoff_depth = runoff_depth / 1000.0 ! mm/timestep -> m/timestep
 
 	!Get states from previous time step
-	contrib_frac = lakestate%fcarea(1,i) !state variable to be passed by HYPE
+	contrib_frac = lakestate%fcarea(i) !state variable to be passed by HYPE
 	contrib_frac_old = contrib_frac
 	area_frac = 1 !state variable, currently fixed at 1 (max_water_area_frac)
 	vol_frac = current_depth / max_depth !lakestate%volfrac(1,i)
+  !WRITE(6,*) vol_frac,lakestate%volfrac(1,i)   !CP220331
 	depth = current_depth
     outflow_depth = 0.0 !initialize outflow (m)
 
@@ -6637,7 +6639,7 @@ END SUBROUTINE calculate_interflow_between_floodplains2
     !>Remove outflow from lake
     CALL remove_outflow_from_lake(i,itype,ns,outflowmm,subid,lakedepth_not_used,hypodepth_not_used,lakewstmm,coutflow,lakestate)
 	!Bookkeeping for the next time step
-    lakestate%fcarea(1,i) = contrib_frac 
+    lakestate%fcarea(i) = contrib_frac 
     lakestate%volfrac(1,i) = depth / max_depth 
     
     !>Set output variables
@@ -6787,9 +6789,9 @@ END SUBROUTINE calculate_interflow_between_floodplains2
 		if (current_depth > max_depth) then
 		! max depth is exceeded, so there will be outflows
 			excess_depth = max(current_depth - max_depth, 0.0)
-			current_depth = max_depth
+			current_depth = max_depth 
 			iteration_contrib_frac = 1.0
-			total_outflow_depth = total_outflow_depth + &
+			total_outflow_depth = total_outflow_depth + &   !? CP220331 Not as on presentation
 			(excess_depth * water_area_frac) + &
 			(iteration_runoff * upland_area_frac * iteration_contrib_frac)
 
