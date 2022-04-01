@@ -729,11 +729,11 @@ USE MODVAR, ONLY : STATECONFIGURATIONTYPE,STATEDIMENSIONTYPE
     stateinfo(iadd+7)%svname = 'uppertemp'
     stateinfo(iadd+8)%svname = 'lowertemp'
     stateinfo(iadd+9)%svname = 'volfrac'
-    stateinfo(iadd+10)%svname = 'fcarea'	!HGDM
+    stateinfo(iadd+10)%svname = 'fcarea'  !HGDM
     stateinfo(iadd+1:iadd+2)%ndim = 2
     stateinfo(iadd+3)%ndim = 3
     stateinfo(iadd+4:iadd+9)%ndim = 2
-    stateinfo(iadd+10)%ndim = 1	!HGDM
+    stateinfo(iadd+10)%ndim = 1  !HGDM
     stateinfo(iadd+1)%dims(1:2) = (/nl,n/)
     stateinfo(iadd+2)%dims(1:2) = (/nl,n/)
     stateinfo(iadd+3)%dims(1:3) = (/ns,nl,n/)
@@ -741,7 +741,7 @@ USE MODVAR, ONLY : STATECONFIGURATIONTYPE,STATEDIMENSIONTYPE
       stateinfo(i)%dims(1:2) = (/nl,n/)
     ENDDO
     stateinfo(iadd+9)%dims(1:2) = (/nlks,n/)
-    stateinfo(iadd+10)%dims(1) = n	!HGDM
+    stateinfo(iadd+10)%dims(1) = n  !HGDM
     IF(ALLOCATED(lakestate%water))THEN
       stateinfo(iadd+1)%allok = .TRUE.
       ALLOCATE(stateinfo(iadd+1)%svpoint%d2(stateinfo(iadd+1)%dims(1),stateinfo(iadd+1)%dims(2)))
@@ -778,7 +778,7 @@ USE MODVAR, ONLY : STATECONFIGURATIONTYPE,STATEDIMENSIONTYPE
       stateinfo(iadd+9)%allok = .TRUE.
       ALLOCATE(stateinfo(iadd+9)%svpoint%d2(stateinfo(iadd+9)%dims(1),stateinfo(iadd+9)%dims(2)))
     ENDIF
-    IF(ALLOCATED(lakestate%fcarea))THEN	!HGDM
+    IF(ALLOCATED(lakestate%fcarea))THEN  !HGDM
       stateinfo(iadd+10)%allok = .TRUE.
       ALLOCATE(stateinfo(iadd+10)%svpoint%d1(stateinfo(iadd+10)%dims(1)))
     ENDIF
@@ -3582,7 +3582,7 @@ USE MODVAR, ONLY : STATECONFIGURATIONTYPE,STATEDIMENSIONTYPE
       ENDDO
       DO i = 1,n
         iarr = iarr + 1
-  		  IF(iarr>=iarrfirst.AND.iarr<=iarrlast) array(iarr-arrshift) = lakestate%fcarea(i)
+        IF(iarr>=iarrfirst.AND.iarr<=iarrlast) array(iarr-arrshift) = lakestate%fcarea(i)
       ENDDO
     ENDIF
 

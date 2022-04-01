@@ -6525,14 +6525,14 @@ END SUBROUTINE calculate_interflow_between_floodplains2
     REAL, INTENT(IN)    :: qin           !<lateral inflow (runoff from upland) of lake (m3/s)  - river discharge and point sources - distributed by icatch
     REAL, INTENT(IN)    :: pein          !<vertical inflow of lake (m3/s) - precipitation and evaporation - distributed by lake area
     REAL, INTENT(IN) 	:: lakearea      !<lakearea (m2)
-	REAL, INTENT(IN)    :: basinarea      !<basinarea (m2)
+    REAL, INTENT(IN)    :: basinarea      !<basinarea (m2)
     REAL, INTENT(IN)    :: qunitfactor   !<factor for transforming flow for lake from m3/s to mm/timestep and back
     REAL, INTENT(OUT)   :: outflowm3s    !<outflow of lake (m3/s)
     REAL, INTENT(OUT)   :: coutflow(ns)  !<concentration of outflow of lake
     REAL,ALLOCATABLE,INTENT(INOUT) :: load(:,:)  !<load of outflow of lake (and other flows)
     REAL,ALLOCATABLE,INTENT(INOUT) :: volumeflow(:,:)    !<volume outflow of lake (m3/ts) (and other flows)
     REAL, INTENT(OUT)   :: wst           !<lake water (mm)
-	REAL, INTENT(INOUT)   :: fnca          !<fraction of non-contributing area (per subbasin area)
+    REAL, INTENT(INOUT)   :: fnca          !<fraction of non-contributing area (per subbasin area)
     TYPE(lakestatetype),INTENT(INOUT) :: lakestate  !<Lake state
 
     !Local parameters
@@ -6583,8 +6583,7 @@ END SUBROUTINE calculate_interflow_between_floodplains2
     w0Today = basin(i)%lakedepth(itype)
 	! read HGDM input parameters
 	max_water_area_frac = lakearea/basinarea
-	max_depth = basin(i)%hgdmdepth
-	!max_depth = basin(i)%lakedepth(itype)    !CP220331 changed to hgdm_depth 
+	max_depth = basin(i)%lakedepth(itype)   !CP220331 lakedepth is now equal to basin(i)%hgdmdepth
 	max_depth = max_depth*(lakearea/basinarea) !v1.3 scale max_depth to be basin average
 	! hard coded parameter values (area_frac is fixed to 1)
     area_mult = 1.0058485 !for SCRB
@@ -6613,7 +6612,6 @@ END SUBROUTINE calculate_interflow_between_floodplains2
 	contrib_frac_old = contrib_frac
 	area_frac = 1 !state variable, currently fixed at 1 (max_water_area_frac)
 	vol_frac = current_depth / max_depth !lakestate%volfrac(1,i)
-  !WRITE(6,*) vol_frac,lakestate%volfrac(1,i)   !CP220331
 	depth = current_depth
     outflow_depth = 0.0 !initialize outflow (m)
 
@@ -6791,7 +6789,7 @@ END SUBROUTINE calculate_interflow_between_floodplains2
 			excess_depth = max(current_depth - max_depth, 0.0)
 			current_depth = max_depth 
 			iteration_contrib_frac = 1.0
-			total_outflow_depth = total_outflow_depth + &   !? CP220331 Not as on presentation
+			total_outflow_depth = total_outflow_depth + &
 			(excess_depth * water_area_frac) + &
 			(iteration_runoff * upland_area_frac * iteration_contrib_frac)
 

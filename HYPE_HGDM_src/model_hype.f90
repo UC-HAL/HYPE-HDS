@@ -1391,7 +1391,6 @@ MODULE MODELMODULE
         !>Set local lake depth from regional or general parameter
         IF(basin(i)%parregion(regiondivision(m_ilrldep))>0) basin(i)%lakedepth(itype) = regpar(m_ilrldep,basin(i)%parregion(regiondivision(m_ilrldep)))
         IF(basin(i)%lakedepth(itype)<=0.) basin(i)%lakedepth(itype) = genpar(m_gldepi)
-        !IF((modeloption(p_connectivity)==2.OR.modeloption(p_connectivity)==3) .AND. basin(i)%hgdmdepth>0.) basin(i)%lakedepth(itype) = basin(i)%hgdmdepth
         !>Replace local lake with hgdm model, if option set and depth value given.
         IF((modeloption(p_connectivity)==2.OR.modeloption(p_connectivity)==3))THEN
           IF(basin(i)%hgdmdepth>0.)THEN
@@ -3522,10 +3521,6 @@ MODULE MODELMODULE
             lakearea(itype),basin(i)%area,qunitfactor,lakeoutflow(itype),concout,  &
             Lpathway,wbflows,lakewst(itype),fnca,lakestate)
 
-          !CP220331
-          !I think HYPE outvar fcon is 1 for the hgmd model at the moment. The variable is based on the lakearea.
-          !In the future I think it should be the fraction of max water area that is currently water 
-          !(and maybe HYPEs lakearea will be the max water area of hgdm).
           ! update state variables/outputs
           fcon = 1.0 -fnca
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
