@@ -88,8 +88,9 @@ frost	2	2	2	2	2	!! frost depth parameter (cm/degree Celsius) soil-type dependent
 !! ilRegion	PPR 1									
 ilratk	77.1954			!! _ilratk_01_						
 ilratp	2.7478			!! _ilratp_01_						
-illdepth	1.25									
-ilicatch	1									
+!! illdepth	1.25									
+ilicatch	1	
+hgdmdepth	1.25
 !!										
 !!	=======================================================================================================									
 !!	RIVER ROUTING									

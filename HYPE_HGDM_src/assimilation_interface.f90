@@ -103,8 +103,8 @@ IMPLICIT NONE
     assimInfo%assim_categories(24:40) = 'soil'
     assimInfo%assim_categories(41:46) = 'aquifer'
     assimInfo%assim_categories(47:61) = 'riverwt'
-    assimInfo%assim_categories(62:70) = 'lakewt'
-    assimInfo%assim_categories(71:84) = 'misc'
+    assimInfo%assim_categories(62:71) = 'lakewt'
+    assimInfo%assim_categories(72:85) = 'misc'
     
   END SUBROUTINE initialize_assim_categories_HYPE
 

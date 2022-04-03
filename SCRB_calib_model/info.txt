@@ -89,6 +89,7 @@ modeloption infiltration 3
 modeloption surfacerunoff 0
 modeloption petmodel	1
 modeloption wetlandmodel 2		
+modeloption connectivity 2
 !! ------------------------------------------------------------------------------------							
 !!							
 !! Define outputs

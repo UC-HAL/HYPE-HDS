@@ -129,7 +129,7 @@ USE MODVAR, ONLY : STATECONFIGURATIONTYPE,STATEDIMENSIONTYPE
     REAL,ALLOCATABLE :: uppertemp(:,:)  !<upper layer (epilimnion) temperature (laketype,subbasin)
     REAL,ALLOCATABLE :: lowertemp(:,:)  !<lower layer (hypolimnion) temperature (laketype,subbasin)
     REAL,ALLOCATABLE :: volfrac(:,:)    !<fraction of lake water volume (lakesection,subbasin) - only for laketype 1!
-	REAL,ALLOCATABLE :: fcarea(:,:)    	!HGDM <fractional contributing area of the subbasin (lakesection,subbasin) - only for HGDM!
+    REAL,ALLOCATABLE :: fcarea(:)       !<HGDM fractional contributing area of the subbasin (lakesection,subbasin) - only for HGDM!
   END TYPE LAKESTATETYPE
 !> \brief Type for miscellaneous state variables
   TYPE MISCSTATETYPE
@@ -206,9 +206,10 @@ USE MODVAR, ONLY : STATECONFIGURATIONTYPE,STATEDIMENSIONTYPE
   PUBLIC set_reset_miscstate_variables_to_array
   PUBLIC set_reset_miscstate_variables_from_array
 
-CONTAINS
+  CONTAINS
 
-  !>Allocate state information variable and assign the information
+  !>Allocate state information variable and assign the information.
+  !>This information variable is used by assimilation routines.
   !
   !>\b Consequences Memory will be allocated
   !---------------------------------------
@@ -242,7 +243,7 @@ CONTAINS
     INTEGER, PARAMETER :: nsoilstates = 17
     INTEGER, PARAMETER :: naquiferstates = 6
     INTEGER, PARAMETER :: nriverstates = 15
-    INTEGER, PARAMETER :: nlakestates = 9
+    INTEGER, PARAMETER :: nlakestates = 10
     INTEGER, PARAMETER :: nmiscstates = 14
     
     !Set local variables
@@ -728,9 +729,11 @@ CONTAINS
     stateinfo(iadd+7)%svname = 'uppertemp'
     stateinfo(iadd+8)%svname = 'lowertemp'
     stateinfo(iadd+9)%svname = 'volfrac'
+    stateinfo(iadd+10)%svname = 'fcarea'  !HGDM
     stateinfo(iadd+1:iadd+2)%ndim = 2
     stateinfo(iadd+3)%ndim = 3
     stateinfo(iadd+4:iadd+9)%ndim = 2
+    stateinfo(iadd+10)%ndim = 1  !HGDM
     stateinfo(iadd+1)%dims(1:2) = (/nl,n/)
     stateinfo(iadd+2)%dims(1:2) = (/nl,n/)
     stateinfo(iadd+3)%dims(1:3) = (/ns,nl,n/)
@@ -738,6 +741,7 @@ CONTAINS
       stateinfo(i)%dims(1:2) = (/nl,n/)
     ENDDO
     stateinfo(iadd+9)%dims(1:2) = (/nlks,n/)
+    stateinfo(iadd+10)%dims(1) = n  !HGDM
     IF(ALLOCATED(lakestate%water))THEN
       stateinfo(iadd+1)%allok = .TRUE.
       ALLOCATE(stateinfo(iadd+1)%svpoint%d2(stateinfo(iadd+1)%dims(1),stateinfo(iadd+1)%dims(2)))
@@ -774,10 +778,9 @@ CONTAINS
       stateinfo(iadd+9)%allok = .TRUE.
       ALLOCATE(stateinfo(iadd+9)%svpoint%d2(stateinfo(iadd+9)%dims(1),stateinfo(iadd+9)%dims(2)))
     ENDIF
-	!HGDM
-	IF(ALLOCATED(lakestate%fcarea))THEN
+    IF(ALLOCATED(lakestate%fcarea))THEN  !HGDM
       stateinfo(iadd+10)%allok = .TRUE.
-      ALLOCATE(stateinfo(iadd+10)%svpoint%d2(stateinfo(iadd+10)%dims(1),stateinfo(iadd+10)%dims(2)))
+      ALLOCATE(stateinfo(iadd+10)%svpoint%d1(stateinfo(iadd+10)%dims(1)))
     ENDIF
     stateinfo(iadd+1)%svpoint%d2  => lakestate%water
     stateinfo(iadd+2)%svpoint%d2  => lakestate%temp
@@ -788,7 +791,7 @@ CONTAINS
     stateinfo(iadd+7)%svpoint%d2  => lakestate%uppertemp
     stateinfo(iadd+8)%svpoint%d2 => lakestate%lowertemp
     stateinfo(iadd+9)%svpoint%d2 => lakestate%volfrac
-	stateinfo(iadd+10)%svpoint%d2 => lakestate%fcarea !HGDM
+    stateinfo(iadd+10)%svpoint%d1 => lakestate%fcarea !HGDM
 
     !Set state information for miscstatetype states
     iadd=nfrozenstates+nsoilstates+naquiferstates+nriverstates+nlakestates
@@ -1630,7 +1633,7 @@ CONTAINS
 !    IF(isconn .AND. nlks>0)THEN
     IF(isconn)THEN
       IF(.NOT.ALLOCATED(lakestate%volfrac))ALLOCATE(lakestate%volfrac(nlks,n))
-	  IF(.NOT.ALLOCATED(lakestate%fcarea))ALLOCATE(lakestate%fcarea(nlks,n)) !HGDM
+      IF(.NOT.ALLOCATED(lakestate%fcarea))ALLOCATE(lakestate%fcarea(n)) !HGDM
     ENDIF
 
   END SUBROUTINE allocate_lakestate_variables
@@ -1652,7 +1655,7 @@ CONTAINS
     IF(ALLOCATED(lakestate%uppertemp)) DEALLOCATE(lakestate%uppertemp)
     IF(ALLOCATED(lakestate%lowertemp)) DEALLOCATE(lakestate%lowertemp)
     IF(ALLOCATED(lakestate%volfrac))   DEALLOCATE(lakestate%volfrac)
-	IF(ALLOCATED(lakestate%fcarea))   DEALLOCATE(lakestate%fcarea) !HGDM
+    IF(ALLOCATED(lakestate%fcarea))    DEALLOCATE(lakestate%fcarea) !HGDM
 
   END SUBROUTINE deallocate_lakestate_variables
 
@@ -1685,7 +1688,7 @@ CONTAINS
     ENDIF  
     IF(config%connectivity)THEN
       lakestate%volfrac(:,:) = lakestate2%volfrac(:,indexarray(:))
-	  lakestate%fcarea(:,:) = lakestate2%fcarea(:,indexarray(:)) !HGDM
+      lakestate%fcarea(:) = lakestate2%fcarea(indexarray(:)) !HGDM
     ENDIF
   
   END SUBROUTINE initiate_lakestate_submodel
@@ -1717,7 +1720,7 @@ CONTAINS
     ENDIF
     IF(isconn)THEN
       lakestate%volfrac(:,:) = 0.
-	  lakestate%fcarea(:,:) = 0.
+      lakestate%fcarea(:) = 0.
     ENDIF
 
   END SUBROUTINE initiate_lakestate_zero
@@ -3484,6 +3487,7 @@ CONTAINS
     ENDIF
     IF(config%connectivity)THEN
       dim = dim + n*nlks  !volfrac
+      dim = dim + n       !fcarea	!HGDM
     ENDIF  
 
   END SUBROUTINE get_lakestate_variables_arraysize
@@ -3574,8 +3578,11 @@ CONTAINS
         DO j = 1,nlks
           iarr = iarr + 1
           IF(iarr>=iarrfirst.AND.iarr<=iarrlast) array(iarr-arrshift) = lakestate%volfrac(j,i)
-		  IF(iarr>=iarrfirst.AND.iarr<=iarrlast) array(iarr-arrshift) = lakestate%fcarea(j,i)
         ENDDO
+      ENDDO
+      DO i = 1,n
+        iarr = iarr + 1
+        IF(iarr>=iarrfirst.AND.iarr<=iarrlast) array(iarr-arrshift) = lakestate%fcarea(i)
       ENDDO
     ENDIF
 
@@ -3675,6 +3682,10 @@ CONTAINS
           iarr = iarr + 1
           IF(iarr>=iarrfirst.AND.iarr<=iarrlast) lakestate%volfrac(j,i) = array(iarr-arrshift)
         ENDDO
+      ENDDO
+      DO i = 1,n
+        iarr = iarr + 1
+        IF(iarr>=iarrfirst.AND.iarr<=iarrlast) lakestate%fcarea(i) = array(iarr-arrshift)
       ENDDO
     ENDIF
 

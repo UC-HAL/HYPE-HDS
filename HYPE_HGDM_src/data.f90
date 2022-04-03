@@ -1562,20 +1562,47 @@ CONTAINS
     !>Read the description of the basins (GeoData.txt)
     CALL read_and_calc_basindata(fileunit_temp,TRIM(dir)//infile,n,lakedataid,ncols,mcols)
 
-    !Check if lakesection is present
-    IF(.NOT.ALLOCATED(lakesectiondata) .AND. modeloption(p_connectivity)>0)THEN
+    !Check if lakesection/depth_hgdm is present when connectivity has been chosen
+    IF(conduct%connectivity)THEN
+      IF(.NOT.ALLOCATED(lakesectiondata) .AND. modeloption(p_connectivity)==1)THEN
         WRITE(6,*) 'Warning: No input data for connectivity found (lakesectiondata), calculations will be turned off.'
         modeloption(p_connectivity) = 0
         conduct%connectivity = .FALSE.
+      ENDIF
+      !IF(SUM(basin(:)%hgdmdepth)==0 .AND. modeloption(p_connectivity)==2)THEN    !Do not work because hgdmdepth can be set by parameter later
+      !  WRITE(6,*) 'Warning: No input data for connectivity found (hgdm_depth), calculations will be turned off.'
+      !  modeloption(p_connectivity) = 0
+      !  conduct%connectivity = .FALSE.
+      !ENDIF
+      !IF(modeloption(p_connectivity)==3 .AND. .NOT.ALLOCATED(lakesectiondata) .AND. SUM(basin(:)%hgdmdepth)==0)THEN
+      !  WRITE(6,*) 'Warning: No input data for connectivity found (lakesectiondata or hgdm_depth), calculations will be turned off.'
+      !  modeloption(p_connectivity) = 0
+      !  conduct%connectivity = .FALSE.
+      !ENDIF
     ELSE
-      conduct%connectivity = .TRUE.
-      IF(ALLOCATED(lakesectiondata) .AND. modeloption(p_connectivity)==0)THEN
+      IF(ALLOCATED(lakesectiondata))THEN
         WRITE(6,*) 'Warning: Input data for connectivity found (lakesectiondata), but modeloption for connectivity is not set.'      
         WRITE(6,*) 'Warning: Hydrological connectivity within sub-basins will not be simulated.'
         DEALLOCATE(lakesectiondata)
-        conduct%connectivity = .FALSE.
+      ENDIF
+      IF(SUM(basin(:)%hgdmdepth)>0.)THEN
+        WRITE(6,*) 'Warning: Input data for connectivity found (hgdm_depth), but modeloption for connectivity is not set.'      
+        WRITE(6,*) 'Warning: Hydrological connectivity within sub-basins will not be simulated.'
       ENDIF
     ENDIF
+    !IF(.NOT.ALLOCATED(lakesectiondata) .AND. modeloption(p_connectivity)>0)THEN
+    !    WRITE(6,*) 'Warning: No input data for connectivity found (lakesectiondata), calculations will be turned off.'
+    !    modeloption(p_connectivity) = 0
+    !    conduct%connectivity = .FALSE.
+    !ELSE
+    !  conduct%connectivity = .TRUE.
+    !  IF(ALLOCATED(lakesectiondata) .AND. modeloption(p_connectivity)==0)THEN
+    !    WRITE(6,*) 'Warning: Input data for connectivity found (lakesectiondata), but modeloption for connectivity is not set.'      
+    !    WRITE(6,*) 'Warning: Hydrological connectivity within sub-basins will not be simulated.'
+    !    DEALLOCATE(lakesectiondata)
+    !    conduct%connectivity = .FALSE.
+    !  ENDIF
+    !ENDIF
 
     !Check if river wetland is present
     IF(conduct%riverwetland)THEN
@@ -2004,14 +2031,19 @@ CONTAINS
   dim%riverqueue = dimrivlag
   dim%timestep = timesteps_per_day
   
-  !Check maximum number of lakesections set in basindata
-  IF(modeloption(p_connectivity)>0 .AND. ALLOCATED(lakesectiondata))THEN
-    dim%lakesection = 0
+  !Check maximum number of lakesections set in basindata for fill-and-spill ilake OR HGDM model
+  dim%lakesection = 0
+  IF(modeloption(p_connectivity)==1)THEN !ilake section model
     DO i = 1, nsbase
       IF(basin(i)%lakesection > dim%lakesection) dim%lakesection = basin(i)%lakesection
     ENDDO
-  ELSE
-    dim%lakesection = 0
+  ELSEIF(modeloption(p_connectivity)==2)THEN  !HGDM model
+    dim%lakesection = 1
+  ELSEIF(modeloption(p_connectivity)==3)THEN  !combination of ilake section model and HGDM model
+    dim%lakesection = 1
+    DO i = 1, nsbase
+      IF(basin(i)%lakesection > dim%lakesection) dim%lakesection = basin(i)%lakesection
+    ENDDO
   ENDIF
 
   !Check if river queue variables is compatible with initial state and calibration
@@ -4225,6 +4257,7 @@ CONTAINS
       IF(str(i)(1:letters)=='ilregion   ') code(i) = i_intg
       IF(str(i)(1:letters)=='olregion   ') code(i) = i_intg
       IF(str(i)(1:letters)=='lake_depth ') code(i) = i_real
+      IF(str(i)(1:letters)=='hgdm_depth ') code(i) = i_real !CP220331
       IF(str(i)(1:letters)=='lake_whigh '.OR.str(i)(1:letters)=='lake_qavg  '.OR.   &
          str(i)(1:letters)=='lake_qamp  '.OR.str(i)(1:letters)=='lake_rate  '.OR.   &
          str(i)(1:letters)=='lake_qhigh '.OR.str(i)(1:letters)=='lake_exp   '.OR.   &
@@ -4380,6 +4413,7 @@ CONTAINS
       IF(str(i)(1:letters)=='parreg_4   ')  basin(1:n)%parregion(4) = xi(1:n,iindex(i)) !Alternative
       IF(str(i)(1:letters)=='parreg_5   ')  basin(1:n)%parregion(5) = xi(1:n,iindex(i))
       IF(str(i)(1:letters)=='lake_depth ')  basin(1:n)%lakedepth(2) = xr(1:n,rindex(i))
+      IF(str(i)(1:letters)=='hgdm_depth ')  basin(1:n)%hgdmdepth  = xr(1:n,rindex(i)) !CP220331
       IF(str(i)(1:letters)=='icatch     ')  basin(1:n)%ilakecatch = xr(1:n,rindex(i))
       IF(str(i)(1:letters)=='iwetcatch  ')  basin(1:n)%iwetcatch  = xr(1:n,rindex(i))
       IF(str(i)(1:letters)=='cloud_jan  ')  basin(1:n)%cloudiness(1) = xr(1:n,rindex(i))
