@@ -1006,7 +1006,7 @@ MODULE HYPEVARIABLES
   INTEGER,PARAMETER :: m_ilrrat2     = 18
   INTEGER,PARAMETER :: m_ilrldep     = 19
   INTEGER,PARAMETER :: m_ilricatch   = 20
-  INTEGER,PARAMETER :: m_ilhgdmdep   = 21
+  INTEGER,PARAMETER :: m_ilhdsdep   = 21
 !>\}
 
 !> \name Olake region dependent model parameter indices

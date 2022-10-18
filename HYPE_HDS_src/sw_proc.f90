@@ -106,7 +106,7 @@ MODULE SURFACEWATER_PROCESSES
             river_water_level, &
             ice_on_river, &
             initiate_lakeriverice, &
-			calculate_HGDM_depressions_outflow
+			calculate_HDS_depressions_outflow
 
   !Private parameters, global in this module
   CHARACTER(LEN=46) :: errstring(11)  !error message for location of remove_water call
@@ -6462,15 +6462,15 @@ END SUBROUTINE calculate_interflow_between_floodplains2
 
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!! Implementation of the HGDM algorithm    !!!!!!
+  !!!!!! Implementation of the HDS algorithm    !!!!!!
   !!!!!! for the prairies						 !!!!!!
   !!!!!! Implemented by M.I.Ahmed UC-HAL 2021    !!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   ! The following subrouting is modified from the calculate_ilake_outflow
-  ! to handle lake/pothole daynamics and call HGDM algorithm
+  ! to handle lake/pothole daynamics and call HDS algorithm
   !>\brief Subroutine for calculation and removal of outflow from prairie depressions.
-  !! The HGDM algorithm was developed by Kevin Shook
+  !! The HDS algorithm was developed by Kevin Shook
   !! and implemented in HYPE by M.I.Ahmed.
   ! version history
   !*********************
@@ -6479,18 +6479,18 @@ END SUBROUTINE calculate_interflow_between_floodplains2
   ! v01.1 modified runoff depths at lake and upland and fixed area_frac = 1 since
   ! changing it made errors in the units conversion (m3/s) since it is not updated in HYPE
   ! there are small differences in current_depth between the different timesteps
-  !due to the fact that HGDM and HYPE handles the water depth in lake differently.
-  ! HYPE transfers all the water first to the lake (different runoff compared to HGDM) and then subtract
+  !due to the fact that HDS and HYPE handles the water depth in lake differently.
+  ! HYPE transfers all the water first to the lake (different runoff compared to HDS) and then subtract
   ! the outflow from the lake
-  ! HGDM aggregates the fluxes at the basin scale (handles both lake and upland at the same time)
+  ! HDS aggregates the fluxes at the basin scale (handles both lake and upland at the same time)
   ! assiging current depth from vol_frac makes the current_depth consistent between timesteps.
   ! However, the model does not generate reasonable results (water keeps building up to max_depth and fluctuates around it)
   ! For now, we will use the current_depth from the lakestatemm, this makes it more consistent with the lake stage
   !*********************
-  !v 01.2 Current_depth is read from the vol_frac variable because HYPE and HGDM treat the
+  !v 01.2 Current_depth is read from the vol_frac variable because HYPE and HDS treat the
   ! ponded depth differently, which causes problems in the calculations
   ! make the area_frac dynamic
-  ! Fixed outflow calc, outflow from HGDM is basin depth (i.e., outflow (cms) = outflow (HGDM)* basinarea), while outflow from ilake
+  ! Fixed outflow calc, outflow from HDS is basin depth (i.e., outflow (cms) = outflow (HDS)* basinarea), while outflow from ilake
   ! is from the ilake depth (outflow (cms) = outflow (ilake) * lakearea)
   !***************************
   !v 1.3 scale max_depth to be basin average (max_depth * lakearea/basinarea) and take
@@ -6502,7 +6502,7 @@ END SUBROUTINE calculate_interflow_between_floodplains2
   ! hard-coding area_mult, area_power since the area_frac is kept constant (=1)
   ! skip reading the input parameters from txt and read them from the HYPE inputs max_depth, max_water_area_frac
   !----------------------------------------------------------------------------
-  SUBROUTINE calculate_HGDM_depressions_outflow(i,subid,ns,qin,pein,lakearea,basinarea,qunitfactor, &
+  SUBROUTINE calculate_HDS_depressions_outflow(i,subid,ns,qin,pein,lakearea,basinarea,qunitfactor, &
                                      outflowm3s,coutflow,load,volumeflow,wst,fnca,lakestate)
 
     USE HYPEVARIABLES, ONLY : ratingk, &
@@ -6548,20 +6548,20 @@ END SUBROUTINE calculate_interflow_between_floodplains2
     REAL outflowmm              !outflow of lake (mm)
     REAL qinmm, peinmm          !inflow and vertical fluxes depths (mm) at the lake scale
 
-	!Local variables for HGDM
+	!Local variables for HDS
 	REAL delta_depth 			! = pein -> vertical inflow of lake (m3/s) - precipitation and evaporation
 	REAL runoff_depth			! = qin -> lateral inflow (runoff from upland) of lake (m3/s)  - river discharge and point sources
     REAL current_depth, current_depth_old			! = wlmr -> water level lake  (m)
 	REAL contrib_frac, contrib_frac_old 			! fraction of contributing area
 	REAL area_frac 				! fraction of basin area occupied by water
 	REAL vol_frac 				! volume fraction (fraction of filling)
-	REAL depth 					! water level lake  (m) updated by HGDM
-    REAL outflow_depth 			! outflow from depressions calculated by HGDM (m)
-    !CHARACTER(LEN=100) trash !read text from HGDM input par file
-    !integer ifsubid !subid from HGDM file
+	REAL depth 					! water level lake  (m) updated by HDS
+    REAL outflow_depth 			! outflow from depressions calculated by HDS (m)
+    !CHARACTER(LEN=100) trash !read text from HDS input par file
+    !integer ifsubid !subid from HDS file
     !REAL Mass_Balance !check for mass balance
 
-	!HGDM parameters (to be passed by HYPE)
+	!HDS parameters (to be passed by HYPE)
 	REAL max_depth  !m
     REAL max_water_area_frac !fraction
     REAL area_mult  !for SCRB fixed value
@@ -6581,9 +6581,9 @@ END SUBROUTINE calculate_interflow_between_floodplains2
     !! IF(basin(i)%parregion(regiondivision(m_ilrrat2))>0) ratinge=regpar(m_ilrrat2,basin(i)%parregion(regiondivision(m_ilrrat2)))  !TODO: check subroutine for only olake, probably not used
     !! IF(ratinge<=0.) ratinge = genpar(m_grat2)
     w0Today = basin(i)%lakedepth(itype)
-	! read HGDM input parameters
+	! read HDS input parameters
 	max_water_area_frac = lakearea/basinarea
-	max_depth = basin(i)%lakedepth(itype)   !CP220331 lakedepth is now equal to basin(i)%hgdmdepth
+	max_depth = basin(i)%lakedepth(itype)   !CP220331 lakedepth is now equal to basin(i)%hdsdepth
 	max_depth = max_depth*(lakearea/basinarea) !v1.3 scale max_depth to be basin average
 	! hard coded parameter values (area_frac is fixed to 1)
     area_mult = 1.0058485 !for SCRB
@@ -6598,7 +6598,7 @@ END SUBROUTINE calculate_interflow_between_floodplains2
     current_depth    = ((lakewstmm - peinmm - qinmm) /1000.0)*(lakearea/basinarea) ! v1.3 mm -> m
     current_depth_old = current_depth
 
-    !>Calculate inflows to depressions using HGDM
+    !>Calculate inflows to depressions using HDS
     ! runoff needs to be depth from the upland (qin is runoff depth scaled at the lake)
 
 	delta_depth = pein * qunitfactor ! vertical flux (P-E) m3/s -> mm/timestep
@@ -6622,12 +6622,12 @@ END SUBROUTINE calculate_interflow_between_floodplains2
                             depth, outflow_depth)
 	!update HYPE variables
 	! only send the outflow depth to be removed from HYPE's ilake storage
-	! outflow from HGDM is for the entire basin
+	! outflow from HDS is for the entire basin
 	!scaled to be from lakearea only
 
 	outflowmm = (outflow_depth*basinarea/lakearea) * 1000.0 !m -> mm
 	fnca = 1.0 - contrib_frac
-	!we may use rating curves at this point, the outflow from HGDM will be the input
+	!we may use rating curves at this point, the outflow from HDS will be the input
 	!>Check outflow against lake volume
     IF(outflowmm>lakewstmm) outflowmm = lakewstmm    !Safety for rounded wlmr and ldepth = 0
 
@@ -6659,19 +6659,19 @@ END SUBROUTINE calculate_interflow_between_floodplains2
     !1110    format(9999(g15.7e2, ','))
     !close(123)
 
-  END SUBROUTINE calculate_HGDM_depressions_outflow
+  END SUBROUTINE calculate_HDS_depressions_outflow
 
 
 	!*********************************************
 	!=============================================
 	!+++++++++++++++++++++++++++++++++++++++++++++
-	! The Hysteretic and Gatekeeping Depressions Model (HGDM)
+	! The Hysteretic and Gatekeeping Depressions Model (HDS)
 	! Developed by Kevin Shook and modified by Mohamed Ahmed to be used in hydrologic models
 	! HYPE and MESH
 	!Copyright (C) 2021  Kevin Shook & Mohamed Ahmed
 
 	! This is the main subroutine of the algorithm.
-	! v01: Currently, the HGDM handles the complxeities of the small depression
+	! v01: Currently, the HDS handles the complxeities of the small depression
 	! that are represented using the linear form. No Big Ponds (gatekeeping) function.
 
 	!**************************************************************************

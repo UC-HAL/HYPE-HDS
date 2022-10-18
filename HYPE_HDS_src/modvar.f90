@@ -160,7 +160,7 @@ MODULE MODVAR
     INTEGER soillayer     !<Number of soillayers (per class)
     INTEGER riverqueue    !<Maximum number of lag timesteps for river queue
     INTEGER timestep      !<Number of timesteps per day
-    INTEGER lakesection   !<Maximum number of connectivity ilake model's lake sections or HGDM lakes per subbasin
+    INTEGER lakesection   !<Maximum number of connectivity ilake model's lake sections or HDS lakes per subbasin
   END TYPE STATEDIMENSIONTYPE
 !> \brief Type for holding data about simulation configuration
   TYPE SIMULATIONCONFIGURATIONTYPE
@@ -187,7 +187,7 @@ MODULE MODVAR
     REAL    :: ilakecatch = 0. !<part of catchment/runoff that runs to ilake
     REAL    :: iwetcatch = 0.  !<part of catchment/runoff that runs to iwet
     REAL    :: lakedepth(2) = 0.   !<lake water depth at threshold (m) (ilake and olake)
-    REAL    :: hgdmdepth = 0.   !<maximum depth of ilake modelled with HGDM (threshold for outflow)
+    REAL    :: hdsdepth = 0.   !<maximum depth of ilake modelled with HDS (threshold for outflow)
     REAL    :: closewater = 0. !<part of area (possibly agricultural area) close to water courses
     REAL    :: buffer = 0.     !<part of river length with buffer zones (of river in the area above (e.g. agricultural area))
     REAL    :: eroindex = 1.   !<erosion index, used for erosion model 1
@@ -568,7 +568,7 @@ MODULE MODVAR
   INTEGER, PARAMETER :: p_frozensoil     = 17 !Options for frozen/unfrozen soil water content (0) no frozen water in soil (current HYPE), (1) unfrozen water as function of temperature, (1) unfrozen water as function of three temperatures
   INTEGER, PARAMETER :: p_snowheat       = 18 !Options for snow heat content, (0) off (1) on (snow melt is delayed until heat content correspond to snow temperature = 0°C) 
   INTEGER, PARAMETER :: p_surfacerunoff  = 19 !Options for surface runoff and infiltration, (0) surface runoff based on water above saturation (1) surface runoff based on soil moisture (continous formulation)  (2) surface runoff based on soil moisture and ginfilt (continous formulation) (3) surface runoff based on soil moisture and ginfilt (discrete formulation)
-  INTEGER, PARAMETER :: p_connectivity   = 20 !Hydrological connectivity within subbasins, (0) no connectivity model, (1) ilake fill-and-spill model, (2) HGDM model, (3) fill-and-spill and HGDM models 
+  INTEGER, PARAMETER :: p_connectivity   = 20 !Hydrological connectivity within subbasins, (0) no connectivity model, (1) ilake fill-and-spill model, (2) HDS model, (3) fill-and-spill and HDS models 
   INTEGER, PARAMETER :: num_modelprocess = 20 !Number of processes with options in HYPE
   CHARACTER(LEN=16),ALLOCATABLE :: modeloptionname(:)
   INTEGER,ALLOCATABLE :: modeloption(:)
@@ -615,7 +615,7 @@ MODULE MODVAR
   CHARACTER(LEN=64) :: surfacerunoffmodelnames(0:maxmodelsinoption(p_surfacerunoff)-1)   !<surfacerunoff names
   PARAMETER(surfacerunoffmodelnames = [CHARACTER(LEN=64) :: 'based on soil water treshold', 'based on soil moisture (cont)', 'based on soil moisture and rain (cont)', 'based on soil moisture (disc)', 'based on soil moisture and rain (disc)'])
   CHARACTER(LEN=64) :: connectivitymodelnames(0:maxmodelsinoption(p_connectivity)-1)   !<Connectivity names
-  PARAMETER(connectivitymodelnames = [CHARACTER(LEN=64) :: 'no connectivity model', 'fill-and-spill in ilake sections', 'HGDM ilake model', 'HGDM or fill-and-spill models'])
+  PARAMETER(connectivitymodelnames = [CHARACTER(LEN=64) :: 'no connectivity model', 'fill-and-spill in ilake sections', 'HDS ilake model', 'HDS or fill-and-spill models'])
 !> \}
 
 !> \name Variables for input data

@@ -1,6 +1,6 @@
 !! ----------------------------------------------------------------------------							
 !!							
-!! HYPE-HGDM SCRB
+!! HYPE-HDS SCRB
 !!							
 !! -----------------------------------------------------------------------------							
 !! Check Indata during first runs (deactivate after first runs) 
@@ -89,7 +89,7 @@ modeloption infiltration 3
 modeloption surfacerunoff 0
 modeloption petmodel	1
 modeloption wetlandmodel 2		
-modeloption connectivity 2
+modeloption connectivity 0
 !! ------------------------------------------------------------------------------------							
 !!							
 !! Define outputs
@@ -104,7 +104,7 @@ modeloption connectivity 2
 basinoutput variable	rout	cout	cilv	evap	fnca	fcon
 basinoutput meanperiod	1						
 basinoutput decimals	3
-basinoutput subbasin	4054125
+basinoutput subbasin	4054125	4045747
 !! -----------------							
 !! TIME outputs 
 !! -----------------							
@@ -127,7 +127,7 @@ basinoutput subbasin	4054125
 !! -----------------			
 crit meanperiod	1						
 crit datalimit	30	
-crit subbasin	4054125
+crit subbasin	4054125	4045747
 !! -----------------			
 !! Criterion-specific settings
 !! -----------------							

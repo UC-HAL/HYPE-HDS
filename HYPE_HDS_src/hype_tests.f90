@@ -274,8 +274,8 @@ MODULE MODEL_TEST_ROUTINES
   INTEGER, PARAMETER :: a_aqpassivedepth          = n_max_par + 159
   INTEGER, PARAMETER :: a_aqtopdepth              = n_max_par + 160
   INTEGER, PARAMETER :: a_aqpassivevol            = n_max_par + 161
-  INTEGER, PARAMETER :: a_hgdmdep1                = n_max_par + 162
-  INTEGER, PARAMETER :: a_hgdmdep2                = n_max_par + 163
+  INTEGER, PARAMETER :: a_hdsdep1                = n_max_par + 162
+  INTEGER, PARAMETER :: a_hdsdep2                = n_max_par + 163
   
 ! This is the maximum number of test cases; modparid + extra for test of generic, input and forcing
   INTEGER, PARAMETER :: max_testcases             = n_max_par + 163
@@ -314,7 +314,7 @@ MODULE MODEL_TEST_ROUTINES
       'uwobs','vwobs','basin_mrivcc','basin_mrivcf','basin_mrivcc_ice','basin_mrivcf_ice', &
       'outregionid','outregion_subid','ricethpo','atmdepveg_set','PSD_exist','PST_exist', &
       'PST_miss','subweightcrit','lks_farea','lks_ficatch','sum_lks_ficatch_0.1%', &
-      'sum_lks_farea_0.1%','aq_passivedep','aq_topdepth','aq_passivevol','hgdmdepth','hgdm lake present'])
+      'sum_lks_farea_0.1%','aq_passivedep','aq_topdepth','aq_passivevol','hdsdepth','hds lake present'])
   
   !Parameter for kind of test case, used as index. The different kind of tests
   !are HYPE parameter, input, forcing or generic test cases.
@@ -2059,11 +2059,11 @@ MODULE MODEL_TEST_ROUTINES
         CALL add_generic_result(ret4,0,a_sum_lksfarea,t_lakes,testing_names(a_sum_lksfarea))
         valid_connectivity_options = valid_connectivity_options .AND. ret .AND. ret2 .AND. ret3 .AND. ret4
         !Check grat,ilrat set? Nah, other place if any ilake
-      CASE(2) !HGDM model
+      CASE(2) !HDS model
         ret = .TRUE.
-        CALL check_input(ret,basin(:)%hgdmdepth,ge_zero,a_hgdmdep1,t_lakes)
-        z(1) = SUM(basin(:)%hgdmdepth)
-        CALL check_input(ret,z,gt_zero,a_hgdmdep2,t_lakes)
+        CALL check_input(ret,basin(:)%hdsdepth,ge_zero,a_hdsdep1,t_lakes)
+        z(1) = SUM(basin(:)%hdsdepth)
+        CALL check_input(ret,z,gt_zero,a_hdsdep2,t_lakes)
         valid_connectivity_options = valid_connectivity_options .AND. ret
     END SELECT
 

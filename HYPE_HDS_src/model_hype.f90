@@ -83,13 +83,6 @@ MODULE MODELMODULE
 
     IF(funit==0)THEN
       WRITE(*,601) '---------------------------------------------'
-      WRITE(*,601) '        HYPE-HGDM version 5.12.1             '
-	  WRITE(*,601) '             W A R N I N G                   '
-	  WRITE(*,601) 'This version is still under development, and '
-	  WRITE(*,601) 'is intended to be used for the prairie       '
-	  WRITE(*,601) 'pothole region. Regular ilake is not working '
-	  WRITE(*,601) 'and HGDM is activated by default.            '
-      WRITE(*,601) '---------------------------------------------'
       WRITE(*,601) 'New versions of HYPE at the HYPE Open Source '
       WRITE(*,601) 'Community website (hypecode.smhi.se), as well'
       WRITE(*,601) 'as information on up-coming courses.         '
@@ -1184,7 +1177,7 @@ MODULE MODELMODULE
     modparid(n_ricew1por) = modparidtype('ricew1por ', m_gpar , m_ricew1por)    !river ice, threshold when the river ice porosity starts to reduce the impact of ice on the rating curve (option 2 and 3)
     modparid(n_ricew0ice) = modparidtype('ricew0ice ', m_gpar , m_ricew0ice)    !river ice, threshold when the river ice thickness starts to impact on the rating curve (option 2 and 3)
     modparid(n_ricew1ice) = modparidtype('ricew1ice ', m_gpar , m_ricew1ice)    !river ice, threshold when the river ice thickness impact on rating curve reaches maximum (option 2 and 3)
-    modparid(437) = modparidtype('hgdmdepth ', m_rpar, m_ilhgdmdep)
+    modparid(437) = modparidtype('hdsdepth ', m_rpar, m_ilhdsdep)
 
   END SUBROUTINE define_model_parameters
 
@@ -1222,7 +1215,7 @@ MODULE MODELMODULE
     regiondivision(m_ilrrat2) = 4
     regiondivision(m_ilrldep) = 4
     regiondivision(m_ilricatch) = 4
-    regiondivision(m_ilhgdmdep) = 4
+    regiondivision(m_ilhdsdep) = 4
     regiondivision(m_olrrat1) = 5
     regiondivision(m_olrrat2) = 5
     regiondivision(m_olrldep) = 5
@@ -1391,15 +1384,15 @@ MODULE MODELMODULE
         !>Set local lake depth from regional or general parameter
         IF(basin(i)%parregion(regiondivision(m_ilrldep))>0) basin(i)%lakedepth(itype) = regpar(m_ilrldep,basin(i)%parregion(regiondivision(m_ilrldep)))
         IF(basin(i)%lakedepth(itype)<=0.) basin(i)%lakedepth(itype) = genpar(m_gldepi)
-        !>Replace local lake with hgdm model, if option set and depth value given.
+        !>Replace local lake with hds model, if option set and depth value given.
         IF((modeloption(p_connectivity)==2.OR.modeloption(p_connectivity)==3))THEN
-          IF(basin(i)%hgdmdepth>0.)THEN
-            basin(i)%lakedepth(itype) = basin(i)%hgdmdepth  !Priority
+          IF(basin(i)%hdsdepth>0.)THEN
+            basin(i)%lakedepth(itype) = basin(i)%hdsdepth  !Priority
           ELSE
-            IF(basin(i)%parregion(regiondivision(m_ilhgdmdep))>0)THEN
-              IF(regpar(m_ilhgdmdep,basin(i)%parregion(regiondivision(m_ilhgdmdep)))>0.)THEN
-                basin(i)%hgdmdepth = regpar(m_ilhgdmdep,basin(i)%parregion(regiondivision(m_ilhgdmdep)))    !Set to be used as flag
-                basin(i)%lakedepth(itype) = regpar(m_ilhgdmdep,basin(i)%parregion(regiondivision(m_ilhgdmdep)))
+            IF(basin(i)%parregion(regiondivision(m_ilhdsdep))>0)THEN
+              IF(regpar(m_ilhdsdep,basin(i)%parregion(regiondivision(m_ilhdsdep)))>0.)THEN
+                basin(i)%hdsdepth = regpar(m_ilhdsdep,basin(i)%parregion(regiondivision(m_ilhdsdep)))    !Set to be used as flag
+                basin(i)%lakedepth(itype) = regpar(m_ilhdsdep,basin(i)%parregion(regiondivision(m_ilhdsdep)))
               ENDIF
             ENDIF
           ENDIF
@@ -1486,21 +1479,21 @@ MODULE MODELMODULE
             DO k=1,basin(i)%lakesection
               lakestate%volfrac(k,i) = lakesectiondata(i,k)%farea
             ENDDO
-          ELSEIF(basin(i)%hgdmdepth>0.)THEN
-            lakestate%volfrac(1,i) = 1.0 ! set to be full for HGDM MIA (only used 1st lake section)
-            lakestate%fcarea(i) = 1.0 ! set to be full for HGDM MIA !CP220231
+          ELSEIF(basin(i)%hdsdepth>0.)THEN
+            lakestate%volfrac(1,i) = 1.0 ! set to be full for HDS MIA (only used 1st lake section)
+            lakestate%fcarea(i) = 1.0 ! set to be full for HDS MIA !CP220231
           !ELSE
             !lakestate%volfrac(:,i) = 0.  !Not used
           ENDIF
         ENDIF
       ENDIF
       !************
-      ! set variables to be full ( used by HGDM)
+      ! set variables to be full ( used by HDS)
       ! the most downstream depression (1) is used to store since all depressions
-      ! are lumped in HGDM
-	  ! if(HGDM is active) then
-      !lakestate%volfrac(1,i) = 1.0 ! set to be full for HGDM MIA
-	  !lakestate%fcarea(1,i) = 1.0 ! set to be full for HGDM MIA
+      ! are lumped in HDS
+	  ! if(HDS is active) then
+      !lakestate%volfrac(1,i) = 1.0 ! set to be full for HDS MIA
+	  !lakestate%fcarea(1,i) = 1.0 ! set to be full for HDS MIA
       !************
       IF(slc_olake>0)THEN
         lakestate%water(2,i) = basin(i)%lakedepth(2) * 1000.         !ordinary olake water stage (mm)
@@ -1987,7 +1980,7 @@ MODULE MODELMODULE
                                        get_wetland_threshold, &
                                        river_water_level, &
                                        ice_on_river, &
-									   calculate_HGDM_depressions_outflow
+									   calculate_HDS_depressions_outflow
     USE NPC_SOIL_PROCESSES, ONLY : set_class_precipitation_concentration_and_load,  &
                                    croprotation_soilpoolaverage
     USE TRACER_PROCESSES, ONLY : add_tracer_point_source_to_river,  &
@@ -2145,7 +2138,7 @@ MODULE MODELMODULE
     REAL netroutload(numsubstances,nsub)   !net load of main river and olake (outflow-(local and upstream)inflows)
     LOGICAL statuslb,statuslastlb,looplakes(nsub)    !flag for lakebasin in this subbasin, last lakebasin, and for lakebasins in current lakebasinlake
     REAL pein,fnca,fcon   !ilake connectivity variables
-    !INTEGER HGDMFLAG !mia flag to activate HGDM
+    !INTEGER HDSFLAG !mia flag to activate HDS
     !Variables for irrigation
     REAL pwneedj,pwneedi               !irrigation water demand for current class, and all irrigated classes (m3)
     REAL gwremi                       !groudwater removed for irrigation (mm)
@@ -3386,8 +3379,8 @@ MODULE MODELMODULE
       concout = 0.
       fnca = 0.
       fcon = 1.
-      !HGDM prairie algorithm
-      !HGDMFLAG = 1 !flag to activate HGDM 1 is active
+      !HDS prairie algorithm
+      !HDSFLAG = 1 !flag to activate HDS 1 is active
       a = 0.
       IF(slc_ilake>0)THEN
         j = slc_ilake
@@ -3511,13 +3504,13 @@ MODULE MODELMODULE
                    lakearea(itype),qunitfactor,lakeoutflow(itype),concout,  &
                    Lpathway,wbflows,lakewst(itype),fnca,fcon,lakestate)
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        !ELSEIF(modeloption(p_connectivity)==2)THEN   !all ilake is hgdm so far
-        ELSEIF((modeloption(p_connectivity)==2.OR.modeloption(p_connectivity)==3) .AND. basin(i)%hgdmdepth>0.)THEN
-          !ELSEIF(HGDMFLAG .eq. 1) THEN !HGDM is activated
-          !MIA Call HGDM algorithm for the prairies
+        !ELSEIF(modeloption(p_connectivity)==2)THEN   !all ilake is hds so far
+        ELSEIF((modeloption(p_connectivity)==2.OR.modeloption(p_connectivity)==3) .AND. basin(i)%hdsdepth>0.)THEN
+          !ELSEIF(HDSFLAG .eq. 1) THEN !HDS is activated
+          !MIA Call HDS algorithm for the prairies
           pein = (prec-evapl)/qunitfactor
           ! net water inouts (qin) is separated into runoff (qin-pein) and P+E (pein)
-          CALL calculate_HGDM_depressions_outflow(i,basin(i)%subid,numsubstances,qin-pein, pein,   &
+          CALL calculate_HDS_depressions_outflow(i,basin(i)%subid,numsubstances,qin-pein, pein,   &
             lakearea(itype),basin(i)%area,qunitfactor,lakeoutflow(itype),concout,  &
             Lpathway,wbflows,lakewst(itype),fnca,lakestate)
 
