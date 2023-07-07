@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7853579.svg)](https://doi.org/10.5281/zenodo.7853579)
+
 # HYPE-HDS
 A repo for the HYPE-HDS model.
 
