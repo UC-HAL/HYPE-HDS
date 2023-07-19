@@ -3,21 +3,10 @@
 # HYPE-HDS
 A repo for the HYPE-HDS model.
 
+Journal publication: Ahmed, M.I., Shook, K., Pietroniro, A., Stadnyk, T., Pomeroy, J.W., Pers, C., Gustafsson, D., 2023. Implementing a parsimonious variable contributing area algorithm for the prairie pothole region in the HYPE modelling framework. Environmental Modelling & Software 167, 105769. https://doi.org/10.1016/j.envsoft.2023.105769
 
-Changes:
-- The model can now read parameters from `par.txt` file.
-- Keeps the area of the depressions constant as HYPE does not allow for variable ilake area.
+Users are advised to check the HYPE official website for the most recent version of the HYPE source code (with HDS implementation).
 
-New changes:
-- The modeloption connectivity 2 set the HDS model to be used. I also added an option 3 for use of HDS and Davids fill-and-spill model for the same model set-up (maybe unnecessary). 
-- HDS maximum depth can be added as input in GeoData.txt or par.txt. The hdsdepth input replaces the lakedepth of the ilake and is used in the HDS model. The input is also used as a flag for which subbasins use HDS model.
-- Added a test for valid input for modeloption connectivity 2.
-
-This version of the HYPE model is still under development.
-
-The HYPE model was modified by M. Ahmed at UCalgary.
-
-This version of the code/repo is created to be shared with SHMI for revision and QC/QA purposes only.
 
 The main modifications are in the [`model_hype.f90`](HYPE_HDS_src/model_hype.f90) and [`sw_proc.f90`](HYPE_HDS_src/sw_proc.f90) fortran files. Files [`modvar.f90`](HYPE_HDS_src/modvar.f90), [`hypevar.f90`](HYPE_HDS_src/hypevar.f90), [`data.f90`](HYPE_HDS_src/data.f90) and [`model_hype.f90`](HYPE_HDS_src/model_hype.f90) have been changed for the new input. Files [`hypetypes.f90`](HYPE_HDS_src/hypetypes.f90) and [`assimilation_interface.f90`](HYPE_HDS_src/assimilation_interface.f90) have been changed due to changed state variables, and input data test added to [`hype_tests.f90`](HYPE_HDS_src/hype_tests.f90). 
 
